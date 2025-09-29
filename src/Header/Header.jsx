@@ -6,11 +6,11 @@ function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
-    { name: 'Home', icon: <FaHome />, href: '/' },
-    { name: 'Products', icon: <FaShoppingCart />, href: '/products' },
-    { name: 'Login', icon: <FaSignInAlt />, href: '/login' },
-    { name: 'Contact', icon: <FaEnvelope />, href: '/contact' },
-    { name: 'Account', icon: <FaUser />, href: '/account' }
+    { name: 'Home', href: '/' },
+    { name: 'Products',  href: '/products' },
+    { name: 'Login', href: '/login' },
+    { name: 'Contact',  href: '/contact' },
+    { name: 'Account',  href: '/account' }
   ];
 
   return (

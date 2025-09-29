@@ -1,19 +1,38 @@
-import React, { useState } from 'react'
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { FaHome, FaShoppingCart, FaUser, FaCog, FaSignOutAlt, FaBars, FaTimes, FaWallet, FaPlus, FaHistory, FaChartLine } from 'react-icons/fa'
+import { useAuth } from '../../contexts/AuthContext'
+import apiService from '../../services/apiService'
 
 function DashboardContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [walletBalance, setWalletBalance] = useState(0)
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
 
-  // Mock user data
   const userData = {
-    name: 'John Doe',
-    email: 'john@example.com',
-    walletBalance: 250.75,
-    totalOrders: 12,
-    totalSpent: 1450.50,
-    memberSince: '2024'
+    name: user?.userName || 'User',
+    email: user?.email || '',
+    walletBalance: walletBalance
+  }
+
+  useEffect(() => {
+    fetchWalletBalance()
+  }, [])
+
+  const fetchWalletBalance = async () => {
+    try {
+      const response = await apiService.getWalletBalance()
+      setWalletBalance(response.balance || 0)
+    } catch (error) {
+      console.error('Error fetching wallet balance:', error)
+    }
+  }
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
   }
 
   const menuItems = [
@@ -53,7 +72,10 @@ function DashboardContent() {
           ))}
           
           <div className="border-t border-gray-200 mt-6 pt-6">
-            <button className="flex items-center px-6 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors w-full">
+            <button 
+              onClick={handleLogout}
+              className="flex items-center px-6 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors w-full"
+            >
               <FaSignOutAlt className="mr-3" />
               Logout
             </button>

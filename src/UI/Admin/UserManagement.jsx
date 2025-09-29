@@ -1,52 +1,77 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { FaSearch, FaEdit, FaTrash, FaBan, FaCheck, FaEye } from 'react-icons/fa'
+import apiService from '../../services/apiService'
 
 function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  const users = [
-    {
-      id: 1,
-      name: 'John Doe',
-      email: 'john@example.com',
-      walletBalance: 250.75,
-      totalOrders: 12,
-      totalSpent: 420.50,
-      status: 'active',
-      joinDate: '2024-01-15',
-      lastLogin: '2024-01-20'
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      email: 'jane@example.com',
-      walletBalance: 180.25,
-      totalOrders: 8,
-      totalSpent: 280.00,
-      status: 'active',
-      joinDate: '2024-01-10',
-      lastLogin: '2024-01-19'
-    },
-    {
-      id: 3,
-      name: 'Mike Johnson',
-      email: 'mike@example.com',
-      walletBalance: 0.00,
-      totalOrders: 6,
-      totalSpent: 210.75,
-      status: 'suspended',
-      joinDate: '2024-01-05',
-      lastLogin: '2024-01-18'
+  useEffect(() => {
+    fetchUsers()
+  }, [])
+
+  const fetchUsers = async () => {
+    try {
+      const response = await apiService.getAdminUsers()
+      setUsers(response.users || [])
+    } catch (error) {
+      setError('Failed to load users')
+      console.error('Error fetching users:', error)
+    } finally {
+      setLoading(false)
     }
-  ]
+  }
+
+  const handleDeleteUser = async (userId) => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      try {
+        await apiService.deleteUser(userId)
+        fetchUsers() // Refresh the list
+        alert('User deleted successfully')
+      } catch (error) {
+        alert('Failed to delete user: ' + error.message)
+      }
+    }
+  }
+
+  const handleUpdateWallet = async (userId, amount, operation) => {
+    try {
+      await apiService.updateUserWallet(userId, amount, operation)
+      fetchUsers() // Refresh the list
+      alert('Wallet updated successfully')
+    } catch (error) {
+      alert('Failed to update wallet: ' + error.message)
+    }
+  }
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = user.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === 'all' || user.status === statusFilter
+    const matchesStatus = statusFilter === 'all' || (user.isAdmin ? 'admin' : 'active') === statusFilter
     return matchesSearch && matchesStatus
   })
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-600 mb-4">{error}</p>
+        <button onClick={fetchUsers} className="bg-blue-600 text-white px-4 py-2 rounded-lg">
+          Retry
+        </button>
+      </div>
+    )
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -87,8 +112,7 @@ function UserManagement() {
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
-            <option value="suspended">Suspended</option>
-            <option value="pending">Pending</option>
+            <option value="admin">Admin</option>
           </select>
         </div>
       </div>
@@ -114,10 +138,10 @@ function UserManagement() {
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-semibold">{user.name.charAt(0)}</span>
+                        <span className="text-white font-semibold">{user.userName.charAt(0)}</span>
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{user.name}</p>
+                        <p className="font-medium text-gray-900">{user.userName}</p>
                         <p className="text-sm text-gray-500">{user.email}</p>
                       </div>
                     </div>
@@ -126,18 +150,18 @@ function UserManagement() {
                     <span className="font-medium text-gray-900">₦{user.walletBalance.toFixed(2)}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-gray-900">{user.totalOrders}</span>
+                    <span className="text-gray-900">0</span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="font-medium text-gray-900">₦{user.totalSpent.toFixed(2)}</span>
+                    <span className="font-medium text-gray-900">₦0.00</span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.status)}`}>
-                      {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.isAdmin ? 'admin' : 'active')}`}>
+                      {user.isAdmin ? 'Admin' : 'Active'}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-sm text-gray-900">{new Date(user.joinDate).toLocaleDateString()}</span>
+                    <span className="text-sm text-gray-900">{new Date(user.createdAt).toLocaleDateString()}</span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex space-x-2">
@@ -147,16 +171,17 @@ function UserManagement() {
                       <button className="text-green-600 hover:text-green-900 p-1">
                         <FaEdit />
                       </button>
-                      {user.status === 'active' ? (
-                        <button className="text-yellow-600 hover:text-yellow-900 p-1">
-                          <FaBan />
-                        </button>
-                      ) : (
-                        <button className="text-green-600 hover:text-green-900 p-1">
-                          <FaCheck />
-                        </button>
-                      )}
-                      <button className="text-red-600 hover:text-red-900 p-1">
+                      <button 
+                        onClick={() => handleUpdateWallet(user._id, 100, 'add')}
+                        className="text-green-600 hover:text-green-900 p-1" 
+                        title="Add ₦100"
+                      >
+                        <FaCheck />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteUser(user._id)}
+                        className="text-red-600 hover:text-red-900 p-1"
+                      >
                         <FaTrash />
                       </button>
                     </div>
@@ -177,19 +202,19 @@ function UserManagement() {
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Active Users</h3>
           <p className="text-3xl font-bold text-green-600">
-            {users.filter(u => u.status === 'active').length}
+            {users.filter(u => !u.isAdmin).length}
           </p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Total Revenue</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Total Wallet</h3>
           <p className="text-3xl font-bold text-purple-600">
-            ₦{users.reduce((sum, u) => sum + u.totalSpent, 0).toFixed(2)}
+            ₦{users.reduce((sum, u) => sum + (u.walletBalance || 0), 0).toFixed(2)}
           </p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Avg. Spent</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Admin Users</h3>
           <p className="text-3xl font-bold text-orange-600">
-            ₦{(users.reduce((sum, u) => sum + u.totalSpent, 0) / users.length).toFixed(2)}
+            {users.filter(u => u.isAdmin).length}
           </p>
         </div>
       </div>

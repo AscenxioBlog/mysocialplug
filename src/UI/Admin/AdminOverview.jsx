@@ -1,27 +1,57 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { FaUsers, FaShoppingCart, FaMoneyBillWave, FaBox, FaArrowUp, FaArrowDown } from 'react-icons/fa'
+import apiService from '../../services/apiService'
 
 function AdminOverview() {
+  const [dashboardData, setDashboardData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await apiService.getAdminDashboard()
+      console.log('Dashboard Data:', response)
+      setDashboardData(response)
+    } catch (error) {
+      setError('Failed to load dashboard data')
+      console.error('Error fetching dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-600 mb-4">{error}</p>
+        <button onClick={fetchDashboardData} className="bg-blue-600 text-white px-4 py-2 rounded-lg">
+          Retry
+        </button>
+      </div>
+    )
+  }
+
   const stats = [
-    { title: 'Total Users', value: '1,234', change: '+12%', icon: <FaUsers />, color: 'blue' },
-    { title: 'Total Orders', value: '856', change: '+8%', icon: <FaShoppingCart />, color: 'green' },
-    { title: 'Revenue', value: '₦45,678', change: '+15%', icon: <FaMoneyBillWave />, color: 'purple' },
-    { title: 'Products', value: '24', change: '+2', icon: <FaBox />, color: 'orange' }
+    { title: 'Total Users', value: dashboardData?.stats?.totalUsers || 0, change: '+12%', icon: <FaUsers />, color: 'blue' },
+    { title: 'Total Orders', value: dashboardData?.stats?.totalOrders || 0, change: '+8%', icon: <FaShoppingCart />, color: 'green' },
+    { title: 'Revenue', value: `₦${dashboardData?.stats?.totalRevenue?.toLocaleString() || 0}`, change: '+15%', icon: <FaMoneyBillWave />, color: 'purple' },
+    { title: 'Total Logs', value: dashboardData?.stats?.totalLogs || 0, change: '+2', icon: <FaBox />, color: 'orange' }
   ]
 
-  const recentOrders = [
-    { id: 'ORD-001', user: 'John Doe', product: 'Instagram Account', amount: '₦35', status: 'completed' },
-    { id: 'ORD-002', user: 'Jane Smith', product: 'Facebook Account', amount: '₦25', status: 'processing' },
-    { id: 'ORD-003', user: 'Mike Johnson', product: 'TikTok Account', amount: '₦50', status: 'completed' },
-    { id: 'ORD-004', user: 'Sarah Wilson', product: 'Twitter Account', amount: '₦20', status: 'pending' }
-  ]
-
-  const topUsers = [
-    { name: 'John Doe', orders: 12, spent: '₦420' },
-    { name: 'Jane Smith', orders: 8, spent: '₦280' },
-    { name: 'Mike Johnson', orders: 6, spent: '₦210' },
-    { name: 'Sarah Wilson', orders: 5, spent: '₦175' }
-  ]
+  const recentOrders = dashboardData?.recentOrders || []
+  const topUsers = [] // This would need to be calculated from user data
 
   return (
     <div className="space-y-6">
@@ -59,24 +89,22 @@ function AdminOverview() {
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Orders</h2>
           <div className="space-y-3">
-            {recentOrders.map((order) => (
-              <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            {recentOrders.length > 0 ? recentOrders.map((order) => (
+              <div key={order._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
-                  <p className="font-medium text-gray-900">{order.id}</p>
-                  <p className="text-sm text-gray-600">{order.user} • {order.product}</p>
+                  <p className="font-medium text-gray-900">Order #{order._id.slice(-6)}</p>
+                  <p className="text-sm text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-gray-900">{order.amount}</p>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                    order.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
-                    {order.status}
+                  <p className="font-semibold text-gray-900">₦{order.amount}</p>
+                  <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800">
+                    completed
                   </span>
                 </div>
               </div>
-            ))}
+            )) : (
+              <p className="text-gray-500 text-center py-4">No recent orders</p>
+            )}
           </div>
         </div>
 

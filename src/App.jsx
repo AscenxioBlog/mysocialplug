@@ -1,5 +1,7 @@
 import React from 'react'
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
 import MainHome from './UI/Home/MainHome'
 import Header from './Header/Header'
 import Footer from './Footer/Footer'
@@ -20,6 +22,8 @@ import UserManagement from './UI/Admin/UserManagement'
 import OrderManagement from './UI/Admin/OrderManagement'
 import ProductManagement from './UI/Admin/ProductManagement'
 import Analytics from './UI/Admin/Analytics'
+import LogDetails from './UI/LogDetails/LogDetails'
+import PaymentCallback from './UI/PaymentCallback'
 
 function AppContent() {
   const location = useLocation();
@@ -31,17 +35,22 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<MainHome />} />
         <Route path="/contact" element={<MainContact />} />
+        <Route path="/products" element={<ProtectedRoute><Product /></ProtectedRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<DashboardContent />} >
+        <Route path="/payment/callback" element={<PaymentCallback />} />
+
+        <Route path="/dashboard" element={<ProtectedRoute><DashboardContent /></ProtectedRoute>} >
           <Route index element={<Overview />} />
           <Route path="user-products" element={<Product />} />
           <Route path="product-details/:id" element={<ProductDetails />} />
           <Route path="purchase-success/:orderId" element={<PurchaseSuccess />} />
           <Route path="orders" element={<Order />} />
           <Route path="user-profile" element={<Profile />} />
+        <Route path="log-details/:id" element={<LogDetails />} />
+
         </Route>
-        <Route path="/admin" element={<AdminDashboard />} >
+        <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} >
           <Route index element={<AdminOverview />} />
           <Route path="users" element={<UserManagement />} />
           <Route path="orders" element={<OrderManagement />} />
@@ -56,9 +65,11 @@ function AppContent() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <AppContent />
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 

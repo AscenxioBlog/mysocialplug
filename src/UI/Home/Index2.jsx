@@ -1,64 +1,89 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaTiktok } from "react-icons/fa";
 
 function Index2() {
-  const categories = [
-    {
-      name: "Facebook",
-      icon: <FaFacebook className="text-blue-600 text-3xl" />,
-      color: "bg-blue-50 border-blue-200",
-      products: [
-        { country: "🇺🇸 USA", type: "Standard", friends: "+100 Friends", price: "$25", stock: 12 },
-        { country: "🇬🇧 UK", type: "Premium", friends: "+500 Friends", price: "$45", stock: 3 },
-        { country: "🇨🇦 Canada", type: "Standard", friends: "+200 Friends", price: "$30", stock: 8 },
-        { country: "🇨🇦 Canada", type: "Standard", friends: "+200 Friends", price: "$30", stock: 8 }
-      ]
-    },
-    {
-      name: "Instagram",
-      icon: <FaInstagram className="text-pink-500 text-3xl" />,
-      color: "bg-pink-50 border-pink-200",
-      products: [
-        { country: "🇺🇸 USA", type: "Standard", friends: "+1K Followers", price: "$35", stock: 15 },
-        { country: "🇩🇪 Germany", type: "Premium", friends: "+2K Followers", price: "$60", stock: 2 },
-        { country: "🇫🇷 France", type: "Standard", friends: "+800 Followers", price: "$28", stock: 7 },
-        { country: "🇫🇷 France", type: "Standard", friends: "+800 Followers", price: "$28", stock: 7 }
-      ]
-    },
-    {
-      name: "Twitter",
-      icon: <FaTwitter className="text-sky-500 text-3xl" />,
-      color: "bg-sky-50 border-sky-200",
-      products: [
-        { country: "🇺🇸 USA", type: "Standard", friends: "+500 Followers", price: "$20", stock: 9 },
-        { country: "🇯🇵 Japan", type: "Premium", friends: "+1.5K Followers", price: "$40", stock: 1 },
-        { country: "🇯🇵 Japan", type: "Premium", friends: "+1.5K Followers", price: "$40", stock: 1 },
-        { country: "🇦🇺 Australia", type: "Standard", friends: "+300 Followers", price: "$18", stock: 14 }
-      ]
-    },
-    {
-      name: "TikTok",
-      icon: <FaTiktok className="text-black text-3xl" />,
-      color: "bg-gray-50 border-gray-200",
-      products: [
-        { country: "🇺🇸 USA", type: "Standard", friends: "+2K Followers", price: "$50", stock: 6 },
-        { country: "🇮🇳 India", type: "Premium", friends: "+5K Followers", price: "$80", stock: 0 },
-        { country: "🇮🇳 India", type: "Premium", friends: "+5K Followers", price: "$80", stock: 0 },
-        { country: "🇧🇷 Brazil", type: "Standard", friends: "+1.5K Followers", price: "$35", stock: 11 }
-      ]
-    },
-    {
-      name: "LinkedIn",
-      icon: <FaLinkedin className="text-blue-700 text-3xl" />,
-      color: "bg-blue-50 border-blue-200",
-      products: [
-        { country: "🇺🇸 USA", type: "Standard", friends: "+200 Connections", price: "$30", stock: 5 },
-        { country: "🇺🇸 USA", type: "Standard", friends: "+200 Connections", price: "$30", stock: 5 },
-        { country: "🇸🇬 Singapore", type: "Premium", friends: "+500 Connections", price: "$55", stock: 4 },
-        { country: "🇳🇱 Netherlands", type: "Standard", friends: "+150 Connections", price: "$25", stock: 13 }
-      ]
+  const [logs, setLogs] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    fetchLogs()
+  }, [])
+
+  const fetchLogs = async () => {
+    try {
+      const response = await fetch('https://sociallogs.onrender.com/api/logs')
+      const data = await response.json()
+      setLogs(data.logs || [])
+    } catch (error) {
+      setError('Failed to load logs')
+      console.error('Error fetching logs:', error)
+    } finally {
+      setLoading(false)
     }
-  ];
+  }
+
+  const handleLogClick = (logId) => {
+    navigate(`/log-details/${logId}`)
+  }
+
+  const getCategoryIcon = (category) => {
+    switch (category?.toLowerCase()) {
+      case 'social': case 'facebook': return <FaFacebook className="text-blue-600 text-3xl" />
+      case 'instagram': return <FaInstagram className="text-pink-500 text-3xl" />
+      case 'twitter': return <FaTwitter className="text-sky-500 text-3xl" />
+      case 'tiktok': return <FaTiktok className="text-black text-3xl" />
+      case 'linkedin': return <FaLinkedin className="text-blue-700 text-3xl" />
+      case 'streaming': return <FaFacebook className="text-red-600 text-3xl" />
+      case 'music': return <FaInstagram className="text-green-500 text-3xl" />
+      default: return <FaFacebook className="text-gray-600 text-3xl" />
+    }
+  }
+
+  const getCategoryColor = (category) => {
+    switch (category?.toLowerCase()) {
+      case 'social': case 'facebook': return 'bg-blue-50 border-blue-200'
+      case 'instagram': return 'bg-pink-50 border-pink-200'
+      case 'twitter': return 'bg-sky-50 border-sky-200'
+      case 'tiktok': return 'bg-gray-50 border-gray-200'
+      case 'linkedin': return 'bg-blue-50 border-blue-200'
+      case 'streaming': return 'bg-red-50 border-red-200'
+      case 'music': return 'bg-green-50 border-green-200'
+      default: return 'bg-gray-50 border-gray-200'
+    }
+  }
+
+  const groupedLogs = logs.reduce((acc, log) => {
+    const category = log.category || 'other'
+    if (!acc[category]) {
+      acc[category] = []
+    }
+    acc[category].push(log)
+    return acc
+  }, {})
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button onClick={fetchLogs} className="bg-blue-600 text-white px-4 py-2 rounded-lg">
+            Retry
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4">
@@ -68,44 +93,47 @@ function Index2() {
           <p className="text-gray-600">Choose your platform and country</p>
         </div>
 
-        <div className="space-y-8">
-          {categories.map((category, categoryIndex) => (
-            <div key={categoryIndex} className="bg-white rounded-xl p-6 shadow-sm">
-              <div className="flex items-center gap-3 mb-6">
-                {category.icon}
-                <h2 className="text-2xl font-bold text-gray-800">{category.name}</h2>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {category.products.map((product, productIndex) => (
-                  <div key={productIndex} className={`${category.color} p-4 rounded-lg border hover:shadow-md transition-all cursor-pointer`}>
-                    <div className="flex justify-between items-start mb-3">
-                      <span className="text-lg font-semibold">{product.country}</span>
-                      <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">{product.type}</span>
+        {Object.keys(groupedLogs).length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">No logs available at the moment.</p>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {Object.entries(groupedLogs).map(([category, categoryLogs]) => (
+              <div key={category} className="bg-white rounded-xl p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                  {getCategoryIcon(category)}
+                  <h2 className="text-2xl font-bold text-gray-800 capitalize">{category}</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {categoryLogs.map((log) => (
+                    <div 
+                      key={log._id} 
+                      onClick={() => handleLogClick(log._id)}
+                      className={`${getCategoryColor(category)} p-4 rounded-lg border hover:shadow-md transition-all cursor-pointer`}
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <span className="text-lg font-semibold">{log.logName}</span>
+                        <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">{category}</span>
+                      </div>
+                      
+                      <p className="text-gray-700 mb-2 text-sm">{log.description}</p>
+                      <p className="text-sm text-gray-500 mb-3">{new Date(log.createdAt).toLocaleDateString()}</p>
+                      
+                      <div className="flex justify-between items-center">
+                        <span className="text-xl font-bold text-green-600">₦{log.price}</span>
+                        <button className="px-3 py-1 rounded text-sm bg-black text-white hover:bg-gray-800">
+                          View Details
+                        </button>
+                      </div>
                     </div>
-                    
-                    <p className="text-gray-700 mb-2">{product.friends}</p>
-                    <p className="text-sm text-gray-500 mb-3">{product.stock} left</p>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-xl font-bold text-green-600">{product.price}</span>
-                      <button 
-                        className={`px-3 py-1 rounded text-sm ${
-                          product.stock === 0 
-                            ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
-                            : 'bg-black text-white hover:bg-gray-800'
-                        }`}
-                        disabled={product.stock === 0}
-                      >
-                        {product.stock === 0 ? 'Sold Out' : 'Buy'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

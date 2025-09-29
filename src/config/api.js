@@ -1,26 +1,30 @@
 const API_CONFIG = {
-  BASE_URL: 'https://api.example.com', // Replace with your actual API base URL
-  API_KEY: 'jR61y6iEwHvxaxSFndh6C0q07V174U',
+  BASE_URL: 'https://sociallogs.onrender.com/api',
   ENDPOINTS: {
-    // User endpoints
+    // Auth endpoints
+    REGISTER: '/auth',
     LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    USER_PROFILE: '/user/profile',
+    FORGOT_PASSWORD: '/auth/forgot-password',
+    RESET_PASSWORD: '/auth/reset-password',
     
-    // Product endpoints
-    PRODUCTS: '/products',
-    PRODUCT_DETAILS: '/products/:id',
+    // Logs endpoints (products)
+    LOGS: '/logs',
+    LOG_DETAILS: '/logs/:id',
+    PURCHASE_LOG: '/logs/:id/purchase',
     
-    // Order endpoints
-    ORDERS: '/orders',
-    CREATE_ORDER: '/orders/create',
-    ORDER_DETAILS: '/orders/:id',
+    // Wallet endpoints
+    WALLET_BALANCE: '/wallet/balance',
+    ADD_FUNDS: '/wallet/add-funds',
     
     // Admin endpoints
+    ADMIN_DASHBOARD: '/admin/dashboard',
     ADMIN_USERS: '/admin/users',
-    ADMIN_ORDERS: '/admin/orders',
-    ADMIN_PRODUCTS: '/admin/products',
-    ADMIN_ANALYTICS: '/admin/analytics'
+    ADMIN_USER_DETAILS: '/admin/users/:id',
+    ADMIN_DELETE_USER: '/admin/users/:id',
+    ADMIN_UPDATE_WALLET: '/admin/users/:id/wallet',
+    ADMIN_CREATE_LOG: '/admin/logs',
+    ADMIN_UPDATE_LOG: '/admin/logs/:id',
+    ADMIN_DELETE_LOG: '/admin/logs/:id'
   }
 }
 

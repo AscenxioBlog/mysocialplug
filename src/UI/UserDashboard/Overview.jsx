@@ -1,26 +1,100 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { FaWallet, FaShoppingCart, FaChartLine, FaUser, FaPlus, FaHistory, FaCopy, FaCheck } from 'react-icons/fa'
+import { useAuth } from '../../contexts/AuthContext'
+import apiService from '../../services/apiService'
 
 function Overview() {
-  const [showFundModal, setShowFundModal] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [walletBalance, setWalletBalance] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [showAmountModal, setShowAmountModal] = useState(false)
+  const [amount, setAmount] = useState('')
+  const { user } = useAuth()
   
-  // Mock user data
   const userData = {
-    name: 'John Doe',
-    email: 'john@example.com',
-    walletBalance: 250.75,
-    walletNumber: '1A2B3C4D5E6F7G8H9I0J',
-    totalOrders: 12,
-    totalSpent: 1450.50,
-    memberSince: '2024'
+    name: user?.userName || 'User',
+    email: user?.email || '',
+    walletBalance: walletBalance,
+    walletNumber: user?.id || '1A2B3C4D5E6F7G8H9I0J',
+    totalOrders: 0,
+    totalSpent: 0,
+    memberSince: user?.createdAt ? new Date(user.createdAt).getFullYear() : '2024'
+  }
+
+  useEffect(() => {
+    fetchWalletBalance()
+    
+    // Refresh balance when user returns from payment
+    const handleFocus = () => {
+      fetchWalletBalance()
+    }
+    
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [])
+
+  const fetchWalletBalance = async () => {
+    try {
+      const response = await apiService.getWalletBalance()
+      setWalletBalance(response.balance || 0)
+      console.log('Wallet balance fetched:', response)  
+    } catch (error) {
+      console.error('Error fetching wallet balance:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleAddFunds = async (fundAmount) => {
+    if (!fundAmount || fundAmount <= 0) {
+      alert('Please enter a valid amount')
+      return
+    }
+    
+    try {
+      const result = await apiService.addFunds(fundAmount)
+      
+      if (result.payment_link) {
+        window.location.href = result.payment_link
+      } else if (result.data && result.data.link) {
+        window.location.href = result.data.link
+      } else {
+        alert('Payment URL not available')
+      }
+    } catch (error) {
+      console.error('Error adding funds:', error)
+      alert('Error initializing payment')
+    }
+  }
+
+  const openAmountModal = () => {
+    setShowAmountModal(true)
+    setAmount('')
+  }
+
+  const processPayment = () => {
+    const fundAmount = parseInt(amount)
+    if (fundAmount && fundAmount > 0) {
+      setShowAmountModal(false)
+      handleAddFunds(fundAmount)
+    } else {
+      alert('Please enter a valid amount')
+    }
   }
 
   const copyWalletNumber = () => {
     navigator.clipboard.writeText(userData.walletNumber)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
   }
 
   return (
@@ -30,13 +104,20 @@ function Overview() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl p-6 shadow-sm">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-sm text-gray-600">Wallet Balance</p>
-              <p className="text-2xl font-bold text-green-600">₦{userData.walletBalance.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-green-600">₦{walletBalance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
             </div>
             <FaWallet className="text-green-500 text-2xl" />
           </div>
+          <button
+            onClick={openAmountModal}
+            className="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
+          >
+            <FaPlus className="text-sm" />
+            <span>Add Money</span>
+          </button>
         </div>
         
         <div className="bg-white rounded-xl p-6 shadow-sm">
@@ -91,30 +172,74 @@ function Overview() {
       {/* Quick Actions */}
       <div className="bg-white rounded-xl p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <button
+            onClick={openAmountModal}
+            className="flex items-center justify-center space-x-2 bg-green-50 hover:bg-green-100 text-green-700 py-3 px-4 rounded-lg transition-colors border-2 border-green-200"
+          >
+            <FaPlus />
+            <span>Top Up Wallet</span>
+          </button>
           <Link
-            to="/dashboard/user-products"
+            to="/dashboard/products"
             className="flex items-center justify-center space-x-2 bg-blue-50 hover:bg-blue-100 text-blue-700 py-3 px-4 rounded-lg transition-colors"
           >
             <FaPlus />
             <span>Browse Products</span>
           </Link>
           <Link
-            to="/dashboard/user-products"
-            className="flex items-center justify-center space-x-2 bg-green-50 hover:bg-green-100 text-green-700 py-3 px-4 rounded-lg transition-colors"
+            to="/dashboard/products"
+            className="flex items-center justify-center space-x-2 bg-purple-50 hover:bg-purple-100 text-purple-700 py-3 px-4 rounded-lg transition-colors"
           >
             <FaShoppingCart />
             <span>Shop Now</span>
           </Link>
           <Link
             to="/dashboard/orders"
-            className="flex items-center justify-center space-x-2 bg-purple-50 hover:bg-purple-100 text-purple-700 py-3 px-4 rounded-lg transition-colors"
+            className="flex items-center justify-center space-x-2 bg-orange-50 hover:bg-orange-100 text-orange-700 py-3 px-4 rounded-lg transition-colors"
           >
             <FaHistory />
             <span>Order History</span>
           </Link>
         </div>
       </div>
+
+      {/* Amount Modal */}
+      {showAmountModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-sm w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Enter Amount</h3>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Amount (₦)
+              </label>
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Enter amount"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                min="1"
+                autoFocus
+              />
+            </div>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowAmountModal(false)}
+                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={processPayment}
+                className="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors"
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

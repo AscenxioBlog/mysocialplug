@@ -10,30 +10,6 @@ function ProductDetails() {
 
   const walletBalance = 250.75
 
-  const products = [
-    {
-      id: 1,
-      platform: 'Facebook',
-      country: '🇺🇸 USA',
-      type: 'Standard',
-      followers: '+100 Friends',
-      price: 25,
-      stock: 12,
-      description: 'High-quality Facebook account with real friends and engagement. Perfect for marketing and social media management.',
-      features: ['Real friends', 'Active engagement', 'Aged account', 'Email included']
-    },
-    {
-      id: 2,
-      platform: 'Instagram',
-      country: '🇺🇸 USA',
-      type: 'Standard',
-      followers: '+1K Followers',
-      price: 35,
-      stock: 15,
-      description: 'Premium Instagram account with organic followers and high engagement rate.',
-      features: ['Organic followers', 'High engagement', 'Verified email', 'Phone verified']
-    }
-  ]
 
   const getIcon = (platform) => {
     switch (platform) {

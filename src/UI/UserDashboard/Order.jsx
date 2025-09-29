@@ -1,17 +1,33 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FaShoppingCart, FaCalendarAlt, FaCheckCircle, FaEye, FaEyeSlash, FaCopy, FaCheck } from 'react-icons/fa'
+import apiService from '../../services/apiService'
 
 function Order() {
   const navigate = useNavigate()
   const [orders, setOrders] = useState([])
   const [showPasswords, setShowPasswords] = useState({})
   const [copiedField, setCopiedField] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]')
-    setOrders(storedOrders.reverse()) // Show newest first
+    fetchOrders()
   }, [])
+
+  const fetchOrders = async () => {
+    try {
+      const response = await apiService.getOrders()
+      console.log('API Response:', response)
+      setOrders(response.orders || response || [])
+    } catch (error) {
+      console.error('Error fetching orders:', error)
+      // Fallback to localStorage if API endpoint doesn't exist
+      const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]')
+      setOrders(storedOrders.reverse())
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const copyToClipboard = (text, fieldId) => {
     navigator.clipboard.writeText(text)
@@ -29,6 +45,14 @@ function Order() {
 
   const viewOrderDetails = (orderId) => {
     navigate(`/dashboard/purchase-success/${orderId}`)
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
   }
 
   return (
@@ -55,7 +79,7 @@ function Order() {
       ) : (
         <div className="space-y-4">
           {orders.map((order) => (
-            <div key={order.id} className="bg-white rounded-xl p-6 shadow-sm border">
+            <div key={order._id || order.id} className="bg-white rounded-xl p-6 shadow-sm border">
               <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-4">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -63,16 +87,16 @@ function Order() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg text-gray-900">
-                      {order.product.platform} - {order.product.type}
+                      {order.product?.platform || order.logName || 'Product'} - {order.product?.type || 'Account'}
                     </h3>
-                    <p className="text-gray-600">Order #{order.id}</p>
+                    <p className="text-gray-600">Order #{order._id}</p>
                   </div>
                 </div>
                 
                 <div className="flex items-center space-x-4 mt-4 lg:mt-0">
                   <div className="text-right">
                     <p className="text-sm text-gray-600">Total</p>
-                    <p className="font-bold text-lg">₦{order.totalPrice}</p>
+                    <p className="font-bold text-lg">₦{order.totalPrice || order.amount}</p>
                   </div>
                   <div className="px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1 text-green-600 bg-green-50">
                     <FaCheckCircle className="text-green-500" />
@@ -84,22 +108,22 @@ function Order() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm mb-4">
                 <div>
                   <p className="text-gray-600">Quantity</p>
-                  <p className="font-medium">{order.quantity} account(s)</p>
+                  <p className="font-medium">{order.quantity || 1} account(s)</p>
                 </div>
                 <div>
                   <p className="text-gray-600">Order Date</p>
                   <p className="font-medium flex items-center space-x-1">
                     <FaCalendarAlt className="text-gray-400" />
-                    <span>{new Date(order.purchaseDate).toLocaleDateString()}</span>
+                    <span>{new Date(order.purchaseDate || order.createdAt).toLocaleDateString()}</span>
                   </p>
                 </div>
                 <div>
                   <p className="text-gray-600">Price per Account</p>
-                  <p className="font-medium">₦{order.product.price}</p>
+                  <p className="font-medium">₦{order.product?.price || order.amount}</p>
                 </div>
                 <div>
                   <p className="text-gray-600">Platform</p>
-                  <p className="font-medium">{order.product.country}</p>
+                  <p className="font-medium">{order.product?.country || 'N/A'}</p>
                 </div>
               </div>
               
@@ -107,14 +131,14 @@ function Order() {
                 <div className="flex justify-between items-center mb-3">
                   <h4 className="font-medium text-gray-900">Account Details:</h4>
                   <button
-                    onClick={() => viewOrderDetails(order.id)}
+                    onClick={() => viewOrderDetails(order._id)}
                     className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                   >
                     View Full Details
                   </button>
                 </div>
                 <div className="space-y-3">
-                  {order.loginDetails.map((account, index) => (
+                  {order.loginDetails ? order.loginDetails.map((account, index) => (
                     <div key={index} className="bg-gray-50 p-4 rounded-lg">
                       <h5 className="font-medium text-gray-900 mb-2">Account {index + 1}</h5>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
@@ -124,10 +148,10 @@ function Order() {
                             <p className="font-mono bg-white p-2 rounded border text-xs">{account.email}</p>
                           </div>
                           <button
-                            onClick={() => copyToClipboard(account.email, `email-${order.id}-${index}`)}
+                            onClick={() => copyToClipboard(account.email, `email-${order._id}-${index}`)}
                             className="ml-2 p-1 text-gray-500 hover:text-blue-600"
                           >
-                            {copiedField === `email-${order.id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
+                            {copiedField === `email-${order._id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
                           </button>
                         </div>
                         <div className="flex items-center justify-between">
@@ -135,21 +159,21 @@ function Order() {
                             <p className="text-gray-600 mb-1">Password:</p>
                             <div className="flex items-center">
                               <p className="font-mono bg-white p-2 rounded border text-xs flex-1">
-                                {showPasswords[`${order.id}-${index}`] ? account.password : '••••••••'}
+                                {showPasswords[`${order._id}-${index}`] ? account.password : '••••••••'}
                               </p>
                               <button
-                                onClick={() => togglePasswordVisibility(order.id, index)}
+                                onClick={() => togglePasswordVisibility(order._id, index)}
                                 className="ml-1 p-1 text-gray-500 hover:text-blue-600"
                               >
-                                {showPasswords[`${order.id}-${index}`] ? <FaEyeSlash /> : <FaEye />}
+                                {showPasswords[`${order._id}-${index}`] ? <FaEyeSlash /> : <FaEye />}
                               </button>
                             </div>
                           </div>
                           <button
-                            onClick={() => copyToClipboard(account.password, `password-${order.id}-${index}`)}
+                            onClick={() => copyToClipboard(account.password, `password-${order._id}-${index}`)}
                             className="ml-2 p-1 text-gray-500 hover:text-blue-600"
                           >
-                            {copiedField === `password-${order.id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
+                            {copiedField === `password-${order._id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
                           </button>
                         </div>
                       </div>
@@ -158,7 +182,49 @@ function Order() {
                         <p className="text-xs text-gray-800">{account.additionalInfo}</p>
                       </div>
                     </div>
-                  ))}
+                  )) : order.credentials ? (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h5 className="font-medium text-gray-900 mb-2">Account Details</h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <p className="text-gray-600 mb-1">Username:</p>
+                            <p className="font-mono bg-white p-2 rounded border text-xs">{order.credentials.username}</p>
+                          </div>
+                          <button
+                            onClick={() => copyToClipboard(order.credentials.username, `username-${order._id}`)}
+                            className="ml-2 p-1 text-gray-500 hover:text-blue-600"
+                          >
+                            {copiedField === `username-${order._id}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <p className="text-gray-600 mb-1">Password:</p>
+                            <div className="flex items-center">
+                              <p className="font-mono bg-white p-2 rounded border text-xs flex-1">
+                                {showPasswords[`${order._id}-0`] ? order.credentials.password : '••••••••'}
+                              </p>
+                              <button
+                                onClick={() => togglePasswordVisibility(order._id, 0)}
+                                className="ml-1 p-1 text-gray-500 hover:text-blue-600"
+                              >
+                                {showPasswords[`${order._id}-0`] ? <FaEyeSlash /> : <FaEye />}
+                              </button>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => copyToClipboard(order.credentials.password, `password-${order._id}`)}
+                            className="ml-2 p-1 text-gray-500 hover:text-blue-600"
+                          >
+                            {copiedField === `password-${order._id}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500">No account details available</p>
+                  )}
                 </div>
               </div>
             </div>
