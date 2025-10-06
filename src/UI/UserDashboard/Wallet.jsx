@@ -13,10 +13,13 @@ function Wallet() {
   const fetchBalance = async () => {
     try {
       const response = await fetch('https://sociallogs.onrender.com/api/wallet/balance', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
         credentials: 'include'
       })
       const data = await response.json()
-      setBalance(data.balance)
+      setBalance(data.balance || 0)
     } catch (error) {
       console.error('Error fetching balance:', error)
     }
@@ -31,7 +34,8 @@ function Wallet() {
       const response = await fetch('https://sociallogs.onrender.com/api/wallet/add-funds', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         credentials: 'include',
         body: JSON.stringify({ amount: parseInt(amount) })
@@ -39,13 +43,11 @@ function Wallet() {
 
       const data = await response.json()
       
-      if (response.ok) {
-        // Redirect to payment gateway or handle payment initialization
-        alert('Payment initialized successfully!')
-        setAmount('')
-        fetchBalance()
+      if (response.ok && data.paymentLink) {
+        // Redirect to Flutterwave payment page
+        window.location.href = data.paymentLink
       } else {
-        alert(data.message || 'Failed to add funds')
+        alert(data.message || 'Failed to initialize payment')
       }
     } catch (error) {
       console.error('Error adding funds:', error)

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { FaArrowLeft, FaShoppingCart } from 'react-icons/fa'
+import { FaArrowLeft, FaShoppingCart, FaMinus, FaPlus } from 'react-icons/fa'
 import { useAuth } from '../../contexts/AuthContext'
 import apiService from '../../services/apiService'
 
@@ -12,10 +12,15 @@ function LogDetails() {
   const [loading, setLoading] = useState(true)
   const [purchasing, setPurchasing] = useState(false)
   const [error, setError] = useState('')
+  const [quantity, setQuantity] = useState(1)
+  const [walletBalance, setWalletBalance] = useState(0)
 
   useEffect(() => {
     fetchLogDetails()
-  }, [id])
+    if (isAuthenticated) {
+      fetchWalletBalance()
+    }
+  }, [id, isAuthenticated])
 
   const fetchLogDetails = async () => {
     try {
@@ -29,23 +34,76 @@ function LogDetails() {
     }
   }
 
+  const fetchWalletBalance = async () => {
+    try {
+      const response = await apiService.getWalletBalance()
+      setWalletBalance(response.balance || 0)
+    } catch (error) {
+      console.error('Error fetching wallet balance:', error)
+    }
+  }
+
   const handlePurchase = async () => {
     if (!isAuthenticated) {
       navigate('/login')
       return
     }
 
+    const totalCost = log.price * quantity
+    if (walletBalance < totalCost) {
+      alert('Insufficient wallet balance. Please add funds to your wallet.')
+      return
+    }
+
     setPurchasing(true)
     try {
-      const response = await apiService.purchaseLog(id)
-      alert(`Purchase successful! Username: ${response.credentials.username}, Password: ${response.credentials.password}`)
-      navigate('/dashboard/orders')
+      const response = await fetch(`https://sociallogs.onrender.com/api/logs/${id}/purchase`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        credentials: 'include',
+        body: JSON.stringify({ 
+          quantity: quantity 
+        })
+      })
+
+      const data = await response.json()
+      
+      if (response.ok) {
+        navigate(`/dashboard/purchase-success/${data.orderId}`, {
+          state: { 
+            orderData: data,
+            accounts: data.accounts,
+            totalCost: totalCost
+          }
+        })
+      } else {
+        alert(data.message || 'Purchase failed')
+      }
     } catch (error) {
-      alert(error.message || 'Purchase failed')
+      alert('Purchase failed. Please try again.')
+      console.error('Purchase error:', error)
     } finally {
       setPurchasing(false)
     }
   }
+
+  const increaseQuantity = () => {
+    if (quantity < (log?.stock || 10)) {
+      setQuantity(quantity + 1)
+    }
+  }
+
+  const decreaseQuantity = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1)
+    }
+  }
+
+  const totalCost = log ? log.price * quantity : 0
+  const canAfford = walletBalance >= totalCost
 
   if (loading) {
     return (
@@ -104,22 +162,61 @@ function LogDetails() {
             <div className="bg-gray-50 p-6 rounded-xl">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Purchase This Log</h3>
               <p className="text-gray-600 mb-6">
-                Get instant access to this premium account with secure credentials.
+                Get instant access to premium accounts with secure credentials.
               </p>
               
               <div className="space-y-4">
+                {isAuthenticated && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Wallet Balance:</span>
+                    <span className="font-bold text-green-600">₦{walletBalance.toFixed(2)}</span>
+                  </div>
+                )}
+                
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Price:</span>
+                  <span className="text-gray-600">Price per account:</span>
                   <span className="font-bold text-gray-900">₦{log.price}</span>
                 </div>
                 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={decreaseQuantity}
+                      disabled={quantity <= 1}
+                      className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+                    >
+                      <FaMinus className="text-sm" />
+                    </button>
+                    <span className="px-4 py-2 border border-gray-300 rounded-lg font-semibold">{quantity}</span>
+                    <button
+                      onClick={increaseQuantity}
+                      disabled={quantity >= (log?.stock || 10)}
+                      className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+                    >
+                      <FaPlus className="text-sm" />
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between border-t pt-4">
+                  <span className="text-lg font-semibold text-gray-900">Total:</span>
+                  <span className="text-lg font-bold text-gray-900">₦{totalCost}</span>
+                </div>
+                
+                {isAuthenticated && !canAfford && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <p className="text-red-600 text-sm">Insufficient balance. Please add funds to your wallet.</p>
+                  </div>
+                )}
+                
                 <button
                   onClick={handlePurchase}
-                  disabled={purchasing}
+                  disabled={purchasing || !canAfford}
                   className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                 >
                   <FaShoppingCart />
-                  <span>{purchasing ? 'Processing...' : `Purchase for ₦${log.price}`}</span>
+                  <span>{purchasing ? 'Processing...' : `Purchase for ₦${totalCost}`}</span>
                 </button>
                 
                 {!isAuthenticated && (

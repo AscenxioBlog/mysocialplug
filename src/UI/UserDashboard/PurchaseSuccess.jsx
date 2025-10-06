@@ -1,19 +1,39 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { FaCheck, FaCopy, FaDownload, FaEye, FaEyeSlash } from 'react-icons/fa'
 
 function PurchaseSuccess() {
   const { orderId } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const [order, setOrder] = useState(null)
   const [copiedIndex, setCopiedIndex] = useState(null)
   const [showPasswords, setShowPasswords] = useState({})
 
   useEffect(() => {
-    const orders = JSON.parse(localStorage.getItem('orders') || '[]')
-    const foundOrder = orders.find(o => o.id === parseInt(orderId))
-    setOrder(foundOrder)
-  }, [orderId])
+    if (location.state?.orderData) {
+      setOrder(location.state.orderData)
+    } else {
+      fetchOrderDetails()
+    }
+  }, [orderId, location.state])
+
+  const fetchOrderDetails = async () => {
+    try {
+      const response = await fetch(`https://sociallogs.onrender.com/api/orders/${orderId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        credentials: 'include'
+      })
+      const data = await response.json()
+      if (response.ok) {
+        setOrder(data.order)
+      }
+    } catch (error) {
+      console.error('Error fetching order:', error)
+    }
+  }
 
   const copyToClipboard = (text, index) => {
     navigator.clipboard.writeText(text)
@@ -29,15 +49,15 @@ function PurchaseSuccess() {
   }
 
   const downloadCredentials = () => {
-    const content = order.loginDetails.map((login, index) => 
-      `Account ${index + 1}:\nEmail: ${login.email}\nPassword: ${login.password}\nAdditional Info: ${login.additionalInfo}\n\n`
+    const content = order.accounts.map((account, index) => 
+      `Account ${index + 1}:\nUsername: ${account.username}\nEmail: ${account.email}\nPassword: ${account.password}\n2FA: ${account.twoFA || 'N/A'}\nMail Password: ${account.mailPassword || 'N/A'}\n\n`
     ).join('')
 
     const blob = new Blob([content], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${order.product.platform}_accounts_${order.id}.txt`
+    a.download = `${order.logName}_accounts_${order._id}.txt`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -55,7 +75,7 @@ function PurchaseSuccess() {
         </div>
         <h1 className="text-2xl font-bold text-green-800 mb-2">Purchase Successful!</h1>
         <p className="text-green-700">
-          Your {order.product.platform} accounts have been purchased successfully.
+          Your {order.logName} accounts have been purchased successfully.
         </p>
       </div>
 
@@ -65,19 +85,19 @@ function PurchaseSuccess() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p className="text-sm text-gray-600">Order ID</p>
-            <p className="font-semibold">#{order.id}</p>
+            <p className="font-semibold">#{order._id}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">Platform</p>
-            <p className="font-semibold">{order.product.platform}</p>
+            <p className="text-sm text-gray-600">Product</p>
+            <p className="font-semibold">{order.logName}</p>
           </div>
           <div>
             <p className="text-sm text-gray-600">Quantity</p>
-            <p className="font-semibold">{order.quantity} accounts</p>
+            <p className="font-semibold">{order.accounts?.length || order.quantity} accounts</p>
           </div>
           <div>
             <p className="text-sm text-gray-600">Total Paid</p>
-            <p className="font-semibold text-green-600">₦{order.totalPrice}</p>
+            <p className="font-semibold text-green-600">₦{order.totalAmount || order.totalPrice}</p>
           </div>
         </div>
       </div>
@@ -96,18 +116,31 @@ function PurchaseSuccess() {
         </div>
 
         <div className="space-y-4">
-          {order.loginDetails.map((login, index) => (
+          {order.accounts?.map((account, index) => (
             <div key={index} className="bg-gray-50 p-4 rounded-lg border">
               <h3 className="font-semibold text-gray-900 mb-3">Account {index + 1}</h3>
               
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <p className="text-sm text-gray-600">Email</p>
-                    <p className="font-mono text-sm bg-white p-2 rounded border">{login.email}</p>
+                    <p className="text-sm text-gray-600">Username</p>
+                    <p className="font-mono text-sm bg-white p-2 rounded border">{account.username}</p>
                   </div>
                   <button
-                    onClick={() => copyToClipboard(login.email, `email-${index}`)}
+                    onClick={() => copyToClipboard(account.username, `username-${index}`)}
+                    className="ml-2 p-2 text-gray-500 hover:text-blue-600"
+                  >
+                    {copiedIndex === `username-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-600">Email</p>
+                    <p className="font-mono text-sm bg-white p-2 rounded border">{account.email}</p>
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(account.email, `email-${index}`)}
                     className="ml-2 p-2 text-gray-500 hover:text-blue-600"
                   >
                     {copiedIndex === `email-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
@@ -119,7 +152,7 @@ function PurchaseSuccess() {
                     <p className="text-sm text-gray-600">Password</p>
                     <div className="flex items-center">
                       <p className="font-mono text-sm bg-white p-2 rounded border flex-1">
-                        {showPasswords[index] ? login.password : '••••••••'}
+                        {showPasswords[index] ? account.password : '••••••••'}
                       </p>
                       <button
                         onClick={() => togglePasswordVisibility(index)}
@@ -130,17 +163,42 @@ function PurchaseSuccess() {
                     </div>
                   </div>
                   <button
-                    onClick={() => copyToClipboard(login.password, `password-${index}`)}
+                    onClick={() => copyToClipboard(account.password, `password-${index}`)}
                     className="ml-2 p-2 text-gray-500 hover:text-blue-600"
                   >
                     {copiedIndex === `password-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
                   </button>
                 </div>
 
-                <div>
-                  <p className="text-sm text-gray-600">Additional Info</p>
-                  <p className="text-sm text-gray-800 bg-white p-2 rounded border">{login.additionalInfo}</p>
-                </div>
+                {account.twoFA && (
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-600">2FA Code</p>
+                      <p className="font-mono text-sm bg-white p-2 rounded border">{account.twoFA}</p>
+                    </div>
+                    <button
+                      onClick={() => copyToClipboard(account.twoFA, `twofa-${index}`)}
+                      className="ml-2 p-2 text-gray-500 hover:text-blue-600"
+                    >
+                      {copiedIndex === `twofa-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
+                    </button>
+                  </div>
+                )}
+
+                {account.mailPassword && (
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-600">Mail Password</p>
+                      <p className="font-mono text-sm bg-white p-2 rounded border">{account.mailPassword}</p>
+                    </div>
+                    <button
+                      onClick={() => copyToClipboard(account.mailPassword, `mailpass-${index}`)}
+                      className="ml-2 p-2 text-gray-500 hover:text-blue-600"
+                    >
+                      {copiedIndex === `mailpass-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}

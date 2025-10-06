@@ -46,6 +46,7 @@ function AppContent() {
           <Route index element={<Overview />} />
           <Route path="user-products" element={<Product />} />
           <Route path="product-details/:id" element={<ProductDetails />} />
+          <Route path="log-details/:id" element={<LogDetails />} />
           <Route path="purchase-success/:orderId" element={<PurchaseSuccess />} />
           <Route path="orders" element={<Order />} />
           <Route path="user-profile" element={<Profile />} />

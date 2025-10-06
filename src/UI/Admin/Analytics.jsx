@@ -4,31 +4,7 @@ import { FaCalendarAlt, FaDownload, FaArrowUp, FaArrowDown } from 'react-icons/f
 function Analytics() {
   const [dateRange, setDateRange] = useState('7days')
 
-  const salesData = [
-    { date: '2024-01-15', orders: 12, revenue: 420, users: 8 },
-    { date: '2024-01-16', orders: 15, revenue: 525, users: 12 },
-    { date: '2024-01-17', orders: 8, revenue: 280, users: 6 },
-    { date: '2024-01-18', orders: 18, revenue: 630, users: 14 },
-    { date: '2024-01-19', orders: 22, revenue: 770, users: 18 },
-    { date: '2024-01-20', orders: 16, revenue: 560, users: 11 },
-    { date: '2024-01-21', orders: 20, revenue: 700, users: 15 }
-  ]
 
-  const topProducts = [
-    { name: 'Instagram - USA Standard', sales: 45, revenue: 1575, percentage: 35 },
-    { name: 'Facebook - USA Standard', sales: 32, revenue: 800, percentage: 25 },
-    { name: 'TikTok - USA Premium', sales: 18, revenue: 1440, percentage: 20 },
-    { name: 'Twitter - USA Standard', sales: 25, revenue: 500, percentage: 15 },
-    { name: 'LinkedIn - USA Standard', sales: 8, revenue: 240, percentage: 5 }
-  ]
-
-  const platformStats = [
-    { platform: 'Instagram', orders: 45, revenue: 1575, growth: 12 },
-    { platform: 'Facebook', orders: 32, revenue: 800, growth: 8 },
-    { platform: 'TikTok', orders: 18, revenue: 1440, growth: -5 },
-    { platform: 'Twitter', orders: 25, revenue: 500, growth: 15 },
-    { platform: 'LinkedIn', orders: 8, revenue: 240, growth: 3 }
-  ]
 
   const totalRevenue = salesData.reduce((sum, day) => sum + day.revenue, 0)
   const totalOrders = salesData.reduce((sum, day) => sum + day.orders, 0)

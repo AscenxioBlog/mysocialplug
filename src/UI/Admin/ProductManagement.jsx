@@ -41,6 +41,8 @@ function ProductManagement() {
 
   const { logs, loading, fetchLogDetails, updateLog, deleteLog, createBulkLogs } = useLogManagement()
 
+  console.log('Log data:', logs) // Add this in your component to see the actual data structure
+
   // Filter logs based on search and category
   const filteredLogs = logs.filter(log => {
     const matchesSearch = log.logName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -57,6 +59,7 @@ function ProductManagement() {
       setSelectedLog(logDetails)
       setShowViewModal(true)
     }
+
   }
 
   // Handle edit log
