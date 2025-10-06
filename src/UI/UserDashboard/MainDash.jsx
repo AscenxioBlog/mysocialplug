@@ -7,7 +7,7 @@ function MainDash() {
 
   const navItems = [
     { path: '/dashboard', icon: FiHome, label: 'Overview' },
-    { path: '/dashboard/products', icon: FiShoppingBag, label: 'Products' },
+    { path: '/dashboard/user-products', icon: FiShoppingBag, label: 'Products' },
     { path: '/dashboard/orders', icon: FiShoppingCart, label: 'Orders' },
     { path: '/dashboard/wallet', icon: FiDollarSign, label: 'Wallet' },
     { path: '/dashboard/profile', icon: FiUser, label: 'Profile' },

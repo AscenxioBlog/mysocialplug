@@ -40,6 +40,8 @@ function AppContent() {
         <Route path="/register" element={<Register />} />
         <Route path="/payment/callback" element={<PaymentCallback />} />
 
+        <Route path="/log-details/:id" element={<LogDetails />} />
+        
         <Route path="/dashboard" element={<ProtectedRoute><DashboardContent /></ProtectedRoute>} >
           <Route index element={<Overview />} />
           <Route path="user-products" element={<Product />} />
@@ -47,8 +49,6 @@ function AppContent() {
           <Route path="purchase-success/:orderId" element={<PurchaseSuccess />} />
           <Route path="orders" element={<Order />} />
           <Route path="user-profile" element={<Profile />} />
-        <Route path="log-details/:id" element={<LogDetails />} />
-
         </Route>
         <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} >
           <Route index element={<AdminOverview />} />

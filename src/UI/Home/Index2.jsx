@@ -25,8 +25,8 @@ function Index2() {
     }
   }
 
-  const handleLogClick = (logId) => {
-    navigate(`/log-details/${logId}`)
+  const handleViewDetails = (product) => {
+    navigate(`/log-details/${product._id || product.id}`)
   }
 
   const getCategoryIcon = (category) => {
@@ -110,7 +110,7 @@ function Index2() {
                   {categoryLogs.map((log) => (
                     <div 
                       key={log._id} 
-                      onClick={() => handleLogClick(log._id)}
+                      onClick={() => handleViewDetails(log)}
                       className={`${getCategoryColor(category)} p-4 rounded-lg border hover:shadow-md transition-all cursor-pointer`}
                     >
                       <div className="flex justify-between items-start mb-3">
@@ -123,7 +123,13 @@ function Index2() {
                       
                       <div className="flex justify-between items-center">
                         <span className="text-xl font-bold text-green-600">₦{log.price}</span>
-                        <button className="px-3 py-1 rounded text-sm bg-black text-white hover:bg-gray-800">
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleViewDetails(log)
+                          }}
+                          className="px-3 py-1 rounded text-sm bg-black text-white hover:bg-gray-800"
+                        >
                           View Details
                         </button>
                       </div>

@@ -188,7 +188,7 @@ function Overview() {
             <span>Browse Products</span>
           </Link>
           <Link
-            to="/dashboard/products"
+            to="/dashboard/user-products"
             className="flex items-center justify-center space-x-2 bg-purple-50 hover:bg-purple-100 text-purple-700 py-3 px-4 rounded-lg transition-colors"
           >
             <FaShoppingCart />

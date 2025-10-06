@@ -19,7 +19,7 @@ function Header() {
       <header className="hidden md:block bg-gradient-to-r from-blue-500 to-green-300 shadow-md py-5">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-8">
           <span className="font-bold text-3xl text-white tracking-widest font-sans drop-shadow-lg">
-            MYSOCIALLOG
+            MY SOCIAL LOG
           </span>
           
           <nav className="flex items-center space-x-8">
