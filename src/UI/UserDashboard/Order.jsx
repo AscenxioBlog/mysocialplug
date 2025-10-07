@@ -18,7 +18,18 @@ function Order() {
     try {
       const response = await apiService.getOrders()
       console.log('API Response:', response)
-      setOrders(response.orders || response || [])
+      const apiOrders = response.orders || response || []
+      
+      // Get stored credentials from localStorage
+      const storedCredentials = JSON.parse(localStorage.getItem('orderCredentials') || '{}')
+      
+      // Merge API orders with stored credentials
+      const ordersWithCredentials = apiOrders.map(order => {
+        const orderCredentials = storedCredentials[order._id]
+        return orderCredentials ? { ...order, ...orderCredentials } : order
+      })
+      
+      setOrders(ordersWithCredentials)
     } catch (error) {
       console.error('Error fetching orders:', error)
       // Fallback to localStorage if API endpoint doesn't exist
@@ -138,14 +149,27 @@ function Order() {
                   </button>
                 </div>
                 <div className="space-y-3">
-                  {order.loginDetails ? order.loginDetails.map((account, index) => (
+                  {order.credentials?.map((account, index) => (
                     <div key={index} className="bg-gray-50 p-4 rounded-lg">
                       <h5 className="font-medium text-gray-900 mb-2">Account {index + 1}</h5>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <p className="text-gray-600 mb-1">Username:</p>
+                            <p className="font-mono bg-white p-2 rounded border text-xs">{account.username}</p>
+                          </div>
+                          <button
+                            onClick={() => copyToClipboard(account.username, `username-${order._id}-${index}`)}
+                            className="ml-2 p-1 text-gray-500 hover:text-blue-600"
+                          >
+                            {copiedField === `username-${order._id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
+                          </button>
+                        </div>
+                        
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <p className="text-gray-600 mb-1">Email:</p>
-                            <p className="font-mono bg-white p-2 rounded border text-xs">{account.email}</p>
+                            <p className="font-mono bg-white p-2 rounded border text-xs">{account.email || 'N/A'}</p>
                           </div>
                           <button
                             onClick={() => copyToClipboard(account.email, `email-${order._id}-${index}`)}
@@ -154,6 +178,7 @@ function Order() {
                             {copiedField === `email-${order._id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
                           </button>
                         </div>
+                        
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <p className="text-gray-600 mb-1">Password:</p>
@@ -176,53 +201,35 @@ function Order() {
                             {copiedField === `password-${order._id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
                           </button>
                         </div>
-                      </div>
-                      <div className="mt-2">
-                        <p className="text-gray-600 text-xs">Additional Info:</p>
-                        <p className="text-xs text-gray-800">{account.additionalInfo}</p>
-                      </div>
-                    </div>
-                  )) : order.credentials ? (
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h5 className="font-medium text-gray-900 mb-2">Account Details</h5>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                        
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
-                            <p className="text-gray-600 mb-1">Username:</p>
-                            <p className="font-mono bg-white p-2 rounded border text-xs">{order.credentials.username}</p>
+                            <p className="text-gray-600 mb-1">2FA Code:</p>
+                            <p className="font-mono bg-white p-2 rounded border text-xs">{account.twoFA || 'N/A'}</p>
                           </div>
                           <button
-                            onClick={() => copyToClipboard(order.credentials.username, `username-${order._id}`)}
+                            onClick={() => copyToClipboard(account.twoFA, `twofa-${order._id}-${index}`)}
                             className="ml-2 p-1 text-gray-500 hover:text-blue-600"
                           >
-                            {copiedField === `username-${order._id}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
+                            {copiedField === `twofa-${order._id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
                           </button>
                         </div>
+                        
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
-                            <p className="text-gray-600 mb-1">Password:</p>
-                            <div className="flex items-center">
-                              <p className="font-mono bg-white p-2 rounded border text-xs flex-1">
-                                {showPasswords[`${order._id}-0`] ? order.credentials.password : '••••••••'}
-                              </p>
-                              <button
-                                onClick={() => togglePasswordVisibility(order._id, 0)}
-                                className="ml-1 p-1 text-gray-500 hover:text-blue-600"
-                              >
-                                {showPasswords[`${order._id}-0`] ? <FaEyeSlash /> : <FaEye />}
-                              </button>
-                            </div>
+                            <p className="text-gray-600 mb-1">Mail Password:</p>
+                            <p className="font-mono bg-white p-2 rounded border text-xs">{account.mailPassword || 'N/A'}</p>
                           </div>
                           <button
-                            onClick={() => copyToClipboard(order.credentials.password, `password-${order._id}`)}
+                            onClick={() => copyToClipboard(account.mailPassword, `mailpass-${order._id}-${index}`)}
                             className="ml-2 p-1 text-gray-500 hover:text-blue-600"
                           >
-                            {copiedField === `password-${order._id}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
+                            {copiedField === `mailpass-${order._id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
                           </button>
                         </div>
                       </div>
                     </div>
-                  ) : (
+                  )) || (
                     <p className="text-gray-500">No account details available</p>
                   )}
                 </div>

@@ -12,6 +12,9 @@ function PurchaseSuccess() {
 
   useEffect(() => {
     if (location.state?.orderData) {
+      console.log('=== ORDER DATA FROM STATE ===');
+      console.log('Order Data:', location.state.orderData);
+      console.log('Accounts:', location.state.orderData.accounts);
       setOrder(location.state.orderData)
     } else {
       fetchOrderDetails()
@@ -28,7 +31,10 @@ function PurchaseSuccess() {
       })
       const data = await response.json()
       if (response.ok) {
-        setOrder(data.order)
+        // Try to get credentials from localStorage
+        const storedCredentials = JSON.parse(localStorage.getItem('orderCredentials') || '{}')
+        const orderWithCredentials = storedCredentials[orderId] || data.order
+        setOrder(orderWithCredentials)
       }
     } catch (error) {
       console.error('Error fetching order:', error)
@@ -49,15 +55,15 @@ function PurchaseSuccess() {
   }
 
   const downloadCredentials = () => {
-    const content = order.accounts.map((account, index) => 
-      `Account ${index + 1}:\nUsername: ${account.username}\nEmail: ${account.email}\nPassword: ${account.password}\n2FA: ${account.twoFA || 'N/A'}\nMail Password: ${account.mailPassword || 'N/A'}\n\n`
+    const content = order.credentials.map((account, index) => 
+      `Account ${index + 1}:\nUsername: ${account.username}\nEmail: ${account.email || 'N/A'}\nPassword: ${account.password}\n2FA: ${account.twoFA || 'N/A'}\nMail Password: ${account.mailPassword || 'N/A'}\n\n`
     ).join('')
 
     const blob = new Blob([content], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${order.logName}_accounts_${order._id}.txt`
+    a.download = `accounts_${orderId}.txt`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -75,7 +81,7 @@ function PurchaseSuccess() {
         </div>
         <h1 className="text-2xl font-bold text-green-800 mb-2">Purchase Successful!</h1>
         <p className="text-green-700">
-          Your {order.logName} accounts have been purchased successfully.
+          {order.message || 'Your accounts have been purchased successfully.'}
         </p>
       </div>
 
@@ -85,19 +91,19 @@ function PurchaseSuccess() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p className="text-sm text-gray-600">Order ID</p>
-            <p className="font-semibold">#{order._id}</p>
+            <p className="font-semibold">#{orderId}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">Product</p>
-            <p className="font-semibold">{order.logName}</p>
+            <p className="text-sm text-gray-600">Message</p>
+            <p className="font-semibold">{order.message}</p>
           </div>
           <div>
             <p className="text-sm text-gray-600">Quantity</p>
-            <p className="font-semibold">{order.accounts?.length || order.quantity} accounts</p>
+            <p className="font-semibold">{order.credentials?.length || order.quantity} accounts</p>
           </div>
           <div>
             <p className="text-sm text-gray-600">Total Paid</p>
-            <p className="font-semibold text-green-600">₦{order.totalAmount || order.totalPrice}</p>
+            <p className="font-semibold text-green-600">₦{order.totalAmount}</p>
           </div>
         </div>
       </div>
@@ -115,8 +121,15 @@ function PurchaseSuccess() {
           </button>
         </div>
 
+        {/* Debug Info */}
+        <div className="mb-4 p-3 bg-gray-100 rounded text-xs">
+          <p><strong>Debug:</strong> Credentials Array Length: {order.credentials?.length || 0}</p>
+          <p><strong>Order Keys:</strong> {Object.keys(order).join(', ')}</p>
+          <p><strong>Raw Credentials:</strong> {JSON.stringify(order.credentials)}</p>
+        </div>
+        
         <div className="space-y-4">
-          {order.accounts?.map((account, index) => (
+          {order.credentials?.length > 0 ? order.credentials.map((account, index) => (
             <div key={index} className="bg-gray-50 p-4 rounded-lg border">
               <h3 className="font-semibold text-gray-900 mb-3">Account {index + 1}</h3>
               
@@ -201,7 +214,12 @@ function PurchaseSuccess() {
                 )}
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="text-center py-8">
+              <p className="text-red-600">No account details found in the response.</p>
+              <p className="text-sm text-gray-500 mt-2">Please check the console for API response details.</p>
+            </div>
+          )}
         </div>
 
         <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">

@@ -25,6 +25,14 @@ function LogDetails() {
   const fetchLogDetails = async () => {
     try {
       const response = await apiService.getLogDetails(id)
+      console.log('=== LOG DETAILS API RESPONSE ===');
+      console.log('Full Response:', response);
+      console.log('Log Object:', response.log);
+      console.log('All Log Keys:', Object.keys(response.log || {}));
+      console.log('Accounts:', response.log?.accounts);
+      console.log('Stock:', response.log?.stock);
+      console.log('Available Accounts:', response.log?.availableAccounts);
+      console.log('Accounts Length:', response.log?.accounts?.length);
       setLog(response.log)
     } catch (error) {
       setError('Failed to load log details')
@@ -37,6 +45,9 @@ function LogDetails() {
   const fetchWalletBalance = async () => {
     try {
       const response = await apiService.getWalletBalance()
+      console.log('=== WALLET BALANCE ===');
+      console.log('Wallet API Response:', response);
+      console.log('Balance:', response.balance);
       setWalletBalance(response.balance || 0)
     } catch (error) {
       console.error('Error fetching wallet balance:', error)
@@ -57,6 +68,12 @@ function LogDetails() {
 
     setPurchasing(true)
     try {
+      console.log('=== PURCHASE REQUEST ===');
+      console.log('Log ID:', id);
+      console.log('Quantity:', quantity);
+      console.log('Total Cost:', totalCost);
+      console.log('Request URL:', `https://sociallogs.onrender.com/api/logs/${id}/purchase`);
+      
       const response = await fetch(`https://sociallogs.onrender.com/api/logs/${id}/purchase`, {
         method: 'POST',
         headers: {
@@ -69,14 +86,40 @@ function LogDetails() {
         })
       })
 
+      console.log('=== PURCHASE RESPONSE ===');
+      console.log('Response Status:', response.status);
+      console.log('Response OK:', response.ok);
+      console.log('Response Headers:', Object.fromEntries(response.headers.entries()));
+      
       const data = await response.json()
+      console.log('=== FULL RESPONSE DATA ===');
+      console.log('Complete Response:', JSON.stringify(data, null, 2));
+      console.log('Response Keys:', Object.keys(data));
+      console.log('Order Data:', data.order);
+      console.log('Accounts:', data.accounts);
+      console.log('Order ID:', data.orderId);
+      console.log('Message:', data.message);
       
       if (response.ok) {
+        // Create complete order data with credentials
+        const completeOrderData = {
+          _id: data.orderId,
+          message: data.message,
+          quantity: data.quantity,
+          totalAmount: data.totalAmount,
+          credentials: data.credentials,
+          createdAt: new Date().toISOString(),
+          ...data
+        }
+        
+        // Save to localStorage for order history
+        const existingOrders = JSON.parse(localStorage.getItem('orderCredentials') || '{}')
+        existingOrders[data.orderId] = completeOrderData
+        localStorage.setItem('orderCredentials', JSON.stringify(existingOrders))
+        
         navigate(`/dashboard/purchase-success/${data.orderId}`, {
           state: { 
-            orderData: data,
-            accounts: data.accounts,
-            totalCost: totalCost
+            orderData: completeOrderData
           }
         })
       } else {
@@ -91,7 +134,8 @@ function LogDetails() {
   }
 
   const increaseQuantity = () => {
-    if (quantity < (log?.stock || 10)) {
+    const maxStock = log?.availableQuantity || log?.accounts?.length || log?.availableAccounts || log?.stock || 0
+    if (quantity < maxStock) {
       setQuantity(quantity + 1)
     }
   }
@@ -104,6 +148,13 @@ function LogDetails() {
 
   const totalCost = log ? log.price * quantity : 0
   const canAfford = walletBalance >= totalCost
+  const hasStock = (log?.availableQuantity || log?.accounts?.length || log?.availableAccounts || log?.stock || 0) > 0
+  
+  console.log('=== PURCHASE VALIDATION ===');
+  console.log('Wallet Balance:', walletBalance);
+  console.log('Total Cost:', totalCost);
+  console.log('Can Afford:', canAfford);
+  console.log('Has Stock:', hasStock);
 
   if (loading) {
     return (
@@ -153,8 +204,12 @@ function LogDetails() {
                   <p className="font-medium">{new Date(log.createdAt).toLocaleDateString()}</p>
                 </div>
                 <div>
-                  <span className="text-sm text-gray-500">Price:</span>
+                  <span className="text-sm text-gray-500">Price per account:</span>
                   <p className="text-2xl font-bold text-green-600">₦{log.price}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-500">Available accounts:</span>
+                  <p className="font-medium text-blue-600">{log.availableQuantity || log.accounts?.length || log.availableAccounts || log.stock || 0} accounts</p>
                 </div>
               </div>
             </div>
@@ -191,11 +246,13 @@ function LogDetails() {
                     <span className="px-4 py-2 border border-gray-300 rounded-lg font-semibold">{quantity}</span>
                     <button
                       onClick={increaseQuantity}
-                      disabled={quantity >= (log?.stock || 10)}
+                      disabled={quantity >= (log?.availableQuantity || log?.accounts?.length || log?.availableAccounts || log?.stock || 0)}
                       className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50"
                     >
                       <FaPlus className="text-sm" />
                     </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Max: {log?.availableQuantity || log?.accounts?.length || log?.availableAccounts || log?.stock || 0} accounts available</p>
                   </div>
                 </div>
                 
@@ -204,7 +261,13 @@ function LogDetails() {
                   <span className="text-lg font-bold text-gray-900">₦{totalCost}</span>
                 </div>
                 
-                {isAuthenticated && !canAfford && (
+                {!hasStock && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <p className="text-red-600 text-sm">Out of stock. No accounts available for purchase.</p>
+                  </div>
+                )}
+                
+                {isAuthenticated && !canAfford && hasStock && (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                     <p className="text-red-600 text-sm">Insufficient balance. Please add funds to your wallet.</p>
                   </div>
@@ -212,11 +275,15 @@ function LogDetails() {
                 
                 <button
                   onClick={handlePurchase}
-                  disabled={purchasing || !canAfford}
+                  disabled={purchasing || !canAfford || !hasStock}
                   className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                 >
                   <FaShoppingCart />
-                  <span>{purchasing ? 'Processing...' : `Purchase for ₦${totalCost}`}</span>
+                  <span>
+                    {!hasStock ? 'Out of Stock' : 
+                     purchasing ? 'Processing...' : 
+                     `Purchase for ₦${totalCost}`}
+                  </span>
                 </button>
                 
                 {!isAuthenticated && (
@@ -229,7 +296,7 @@ function LogDetails() {
           </div>
         </div>
       </div>
-    </div>
+    // </div>
   )
 }
 

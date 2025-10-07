@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import apiService from '../services/apiService'
+import FullPageLoader from '../components/FullPageLoader'
 
 const AuthContext = createContext()
 
@@ -16,14 +17,23 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    const userData = localStorage.getItem('user')
-    
-    if (token && userData) {
-      setUser(JSON.parse(userData))
-      apiService.setToken(token)
+    const initAuth = async () => {
+      console.log('Auth loading started')
+      const token = localStorage.getItem('token')
+      const userData = localStorage.getItem('user')
+      
+      // Add delay to see loader
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      if (token && userData) {
+        setUser(JSON.parse(userData))
+        apiService.setToken(token)
+      }
+      console.log('Auth loading finished')
+      setLoading(false)
     }
-    setLoading(false)
+    
+    initAuth()
   }, [])
 
   const login = async (credentials) => {
@@ -68,6 +78,10 @@ export const AuthProvider = ({ children }) => {
     loading,
     isAuthenticated: !!user,
     isAdmin: user?.isAdmin || false
+  }
+
+  if (loading) {
+    return <FullPageLoader text="Initializing..." />
   }
 
   return (

@@ -151,23 +151,7 @@ function Overview() {
         </div>
       </div>
 
-      {/* Wallet Information */}
-      <div className="bg-white rounded-xl p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Wallet Information</h2>
-        <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
-          <div>
-            <p className="text-sm text-gray-600 mb-1">Wallet Number</p>
-            <p className="text-lg font-mono text-gray-900">{userData.walletNumber}</p>
-          </div>
-          <button
-            onClick={copyWalletNumber}
-            className="flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
-          >
-            {copied ? <FaCheck /> : <FaCopy />}
-            <span>{copied ? 'Copied!' : 'Copy'}</span>
-          </button>
-        </div>
-      </div>
+     
 
       {/* Quick Actions */}
       <div className="bg-white rounded-xl p-6 shadow-sm">

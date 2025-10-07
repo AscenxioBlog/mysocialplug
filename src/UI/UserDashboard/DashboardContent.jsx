@@ -40,13 +40,13 @@ function DashboardContent() {
     { name: 'My Orders', icon: <FaShoppingCart />, path: '/dashboard/orders' },
     { name: 'Products', icon: <FaWallet />, path: '/dashboard/user-products' },
     { name: 'Profile', icon: <FaUser />, path: '/dashboard/user-profile' },
-    { name: 'Settings', icon: <FaCog />, path: '/dashboard/settings' }
+    // { name: 'Settings', icon: <FaCog />, path: '/dashboard/settings' }
   ]
 
 
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="h-screen bg-gray-50 flex overflow-hidden">
       {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
@@ -116,7 +116,7 @@ function DashboardContent() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
+        <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
           <Outlet />
         </main>
       </div>

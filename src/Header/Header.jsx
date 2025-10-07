@@ -10,7 +10,7 @@ function Header() {
     { name: 'Products',  href: '/products' },
     { name: 'Login', href: '/login' },
     { name: 'Contact',  href: '/contact' },
-    { name: 'Account',  href: '/account' }
+    // { name: 'Account',  href: '/account' }
   ];
 
   return (

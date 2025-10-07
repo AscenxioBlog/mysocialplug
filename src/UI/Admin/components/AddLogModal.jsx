@@ -1,6 +1,6 @@
 import React from 'react'
 
-function AddLogModal({ show, onClose, bulkForm, setBulkForm, onSubmit }) {
+function AddLogModal({ show, onClose, bulkForm, setBulkForm, onSubmit, creating = false }) {
   if (!show) return null
 
   const handleFormChange = (e) => {
@@ -200,14 +200,23 @@ function AddLogModal({ show, onClose, bulkForm, setBulkForm, onSubmit }) {
           <div className="flex gap-3">
             <button 
               type="submit"
-              className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700"
+              disabled={creating}
+              className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
-              Create {bulkForm.accounts.length} Product(s)
+              {creating ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Processing...
+                </>
+              ) : (
+                `Create ${bulkForm.accounts.length} Product(s)`
+              )}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400"
+              disabled={creating}
+              className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 disabled:opacity-50"
             >
               Cancel
             </button>

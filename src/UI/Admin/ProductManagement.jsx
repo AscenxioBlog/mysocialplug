@@ -15,6 +15,7 @@ function ProductManagement() {
   const [showUpdateModal, setShowUpdateModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
   const [selectedLog, setSelectedLog] = useState(null)
+  const [creating, setCreating] = useState(false)
   
   const [updateForm, setUpdateForm] = useState({
     logName: '',
@@ -88,22 +89,28 @@ function ProductManagement() {
   // Handle bulk create submit
   const handleBulkSubmit = async (e) => {
     e.preventDefault()
-    const successCount = await createBulkLogs(bulkForm)
-    if (successCount > 0) {
-      setShowAddModal(false)
-      setBulkForm({
-        logName: '',
-        description: '',
-        price: '',
-        category: '',
-        accounts: [{
-          username: '',
-          email: '',
-          password: '',
-          twoFA: '',
-          mailPassword: ''
-        }]
-      })
+    setCreating(true)
+    try {
+      const successCount = await createBulkLogs(bulkForm)
+      if (successCount > 0) {
+        // Clear form for next product
+        setBulkForm({
+          logName: '',
+          description: '',
+          price: '',
+          category: '',
+          accounts: [{
+            username: '',
+            email: '',
+            password: '',
+            twoFA: '',
+            mailPassword: ''
+          }]
+        })
+        setShowAddModal(false)
+      }
+    } finally {
+      setCreating(false)
     }
   }
 
@@ -148,6 +155,7 @@ function ProductManagement() {
         bulkForm={bulkForm}
         setBulkForm={setBulkForm}
         onSubmit={handleBulkSubmit}
+        creating={creating}
       />
 
       <EditLogModal 

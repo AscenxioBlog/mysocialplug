@@ -1,22 +1,30 @@
 import React, { useState } from 'react'
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { FaHome, FaUsers, FaShoppingCart, FaBox, FaChartBar, FaCog, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa'
+import { useAuth } from '../../contexts/AuthContext'
 
 function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
+  const { logout } = useAuth()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
+  }
 
   const menuItems = [
     { name: 'Dashboard', icon: <FaHome />, path: '/admin' },
     { name: 'Users', icon: <FaUsers />, path: '/admin/users' },
     { name: 'Orders', icon: <FaShoppingCart />, path: '/admin/orders' },
     { name: 'Products', icon: <FaBox />, path: '/admin/products' },
-    { name: 'Analytics', icon: <FaChartBar />, path: '/admin/analytics' },
-    { name: 'Settings', icon: <FaCog />, path: '/admin/settings' }
+    // { name: 'Analytics', icon: <FaChartBar />, path: '/admin/analytics' },
+    // { name: 'Settings', icon: <FaCog />, path: '/admin/settings' }
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="h-screen bg-gray-50 flex overflow-hidden">
       {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-40 w-64 bg-gray-900 shadow-lg transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-700">
@@ -42,7 +50,7 @@ function AdminDashboard() {
           ))}
           
           <div className="border-t border-gray-700 mt-6 pt-6">
-            <button className="flex items-center px-6 py-3 text-gray-300 hover:bg-red-600 hover:text-white transition-colors w-full">
+            <button onClick={handleLogout} className="flex items-center px-6 py-3 text-gray-300 hover:bg-red-600 hover:text-white transition-colors w-full">
               <FaSignOutAlt className="mr-3" />
               Logout
             </button>
@@ -75,7 +83,7 @@ function AdminDashboard() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
+        <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
           <Outlet />
         </main>
       </div>
