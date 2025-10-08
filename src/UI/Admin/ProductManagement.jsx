@@ -31,13 +31,7 @@ function ProductManagement() {
     description: '',
     price: '',
     category: '',
-    accounts: [{
-      username: '',
-      email: '',
-      password: '',
-      twoFA: '',
-      mailPassword: ''
-    }]
+    accounts: ['']
   })
 
   const { logs, loading, fetchLogDetails, updateLog, deleteLog, createBulkLogs } = useLogManagement()
@@ -99,13 +93,7 @@ function ProductManagement() {
           description: '',
           price: '',
           category: '',
-          accounts: [{
-            username: '',
-            email: '',
-            password: '',
-            twoFA: '',
-            mailPassword: ''
-          }]
+          accounts: ['']
         })
         setShowAddModal(false)
       }

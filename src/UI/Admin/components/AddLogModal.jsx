@@ -7,22 +7,16 @@ function AddLogModal({ show, onClose, bulkForm, setBulkForm, onSubmit, creating 
     setBulkForm({ ...bulkForm, [e.target.name]: e.target.value })
   }
 
-  const handleAccountChange = (index, field, value) => {
+  const handleAccountChange = (index, value) => {
     const updatedAccounts = [...bulkForm.accounts]
-    updatedAccounts[index][field] = value
+    updatedAccounts[index] = value
     setBulkForm({ ...bulkForm, accounts: updatedAccounts })
   }
 
   const addAccount = () => {
     setBulkForm({
       ...bulkForm,
-      accounts: [...bulkForm.accounts, {
-        username: '',
-        email: '',
-        password: '',
-        twoFA: '',
-        mailPassword: ''
-      }]
+      accounts: [...bulkForm.accounts, '']
     })
   }
 
@@ -90,21 +84,16 @@ function AddLogModal({ show, onClose, bulkForm, setBulkForm, onSubmit, creating 
               </div> */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                <select 
-                  name="category"
-                  value={bulkForm.category}
-                  onChange={handleFormChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Select Category</option>
-                  <option value="facebook">Facebook</option>
-                  <option value="instagram">Instagram</option>
-                  <option value="x">X (Twitter)</option>
-                  <option value="email">Email</option>
-                  <option value="vpn">VPN</option>
-                  <option value="tiktok">TikTok</option>
-                </select>
+              <input 
+              
+              type="text" 
+              name="category"
+              value={bulkForm.category}
+              onChange={handleFormChange}
+              placeholder="Social Media"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              required
+            />
               </div>
             </div>
           </div>
@@ -137,60 +126,22 @@ function AddLogModal({ show, onClose, bulkForm, setBulkForm, onSubmit, creating 
                       </button>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Username</label>
-                      <input 
-                        type="text" 
-                        value={account.username}
-                        onChange={(e) => handleAccountChange(index, 'username', e.target.value)}
-                        placeholder="username123"
-                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500" 
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
-                      <input 
-                        type="email" 
-                        value={account.email}
-                        onChange={(e) => handleAccountChange(index, 'email', e.target.value)}
-                        placeholder="user@email.com"
-                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500" 
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Password</label>
-                      <input 
-                        type="text" 
-                        value={account.password}
-                        onChange={(e) => handleAccountChange(index, 'password', e.target.value)}
-                        placeholder="password123"
-                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500" 
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">2FA Code</label>
-                      <input 
-                        type="text" 
-                        value={account.twoFA}
-                        onChange={(e) => handleAccountChange(index, 'twoFA', e.target.value)}
-                        placeholder="ABC123"
-                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500" 
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Mail Password</label>
-                      <input 
-                        type="text" 
-                        value={account.mailPassword}
-                        onChange={(e) => handleAccountChange(index, 'mailPassword', e.target.value)}
-                        placeholder="mailpass123"
-                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500" 
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Account Details
+                    </label>
+                    <textarea
+                      value={account}
+                      onChange={(e) => handleAccountChange(index, e.target.value)}
+                      placeholder={`Paste account details here:
+username:user@email.com:password123:2FA123:mailpass123`}
+                      rows="3"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Format: username:email:password:2fa:mailpassword
+                    </p>
                   </div>
                 </div>
               ))}

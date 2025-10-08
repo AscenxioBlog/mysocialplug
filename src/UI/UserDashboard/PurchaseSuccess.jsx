@@ -55,9 +55,10 @@ function PurchaseSuccess() {
   }
 
   const downloadCredentials = () => {
-    const content = order.credentials.map((account, index) => 
-      `Account ${index + 1}:\nUsername: ${account.username}\nEmail: ${account.email || 'N/A'}\nPassword: ${account.password}\n2FA: ${account.twoFA || 'N/A'}\nMail Password: ${account.mailPassword || 'N/A'}\n\n`
-    ).join('')
+    const content = order.credentials.map((credentialString, index) => {
+      const parts = credentialString.split('|')
+      return `Account ${index + 1}:\nUsername: ${parts[0] || 'N/A'}\nPassword: ${parts[1] || 'N/A'}\nEmail: ${parts[2] || 'N/A'}\nMail Password: ${parts[3] || 'N/A'}\n2FA: ${parts[4] || 'N/A'}\nAdditional 1: ${parts[5] || 'N/A'}\nAdditional 2: ${parts[6] || 'N/A'}\n\n`
+    }).join('')
 
     const blob = new Blob([content], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
@@ -129,8 +130,21 @@ function PurchaseSuccess() {
         </div>
         
         <div className="space-y-4">
-          {order.credentials?.length > 0 ? order.credentials.map((account, index) => (
-            <div key={index} className="bg-gray-50 p-4 rounded-lg border">
+          {order.credentials?.length > 0 ? order.credentials.map((credentialString, index) => {
+            // Parse pipe-separated credential string
+            const parts = credentialString.split('|')
+            const account = {
+              username: parts[0] || '',
+              password: parts[1] || '',
+              email: parts[2] || '',
+              mailPassword: parts[3] || '',
+              twoFA: parts[4] || '',
+              additional1: parts[5] || '',
+              additional2: parts[6] || ''
+            }
+            
+            return (
+              <div key={index} className="bg-gray-50 p-4 rounded-lg border">
               <h3 className="font-semibold text-gray-900 mb-3">Account {index + 1}</h3>
               
               <div className="space-y-3">
@@ -212,9 +226,40 @@ function PurchaseSuccess() {
                     </button>
                   </div>
                 )}
+                
+                {account.additional1 && (
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-600">Additional Info 1</p>
+                      <p className="font-mono text-sm bg-white p-2 rounded border">{account.additional1}</p>
+                    </div>
+                    <button
+                      onClick={() => copyToClipboard(account.additional1, `add1-${index}`)}
+                      className="ml-2 p-2 text-gray-500 hover:text-blue-600"
+                    >
+                      {copiedIndex === `add1-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
+                    </button>
+                  </div>
+                )}
+                
+                {account.additional2 && (
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-600">Additional Info 2</p>
+                      <p className="font-mono text-sm bg-white p-2 rounded border">{account.additional2}</p>
+                    </div>
+                    <button
+                      onClick={() => copyToClipboard(account.additional2, `add2-${index}`)}
+                      className="ml-2 p-2 text-gray-500 hover:text-blue-600"
+                    >
+                      {copiedIndex === `add2-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
-          )) : (
+            )
+          }) : (
             <div className="text-center py-8">
               <p className="text-red-600">No account details found in the response.</p>
               <p className="text-sm text-gray-500 mt-2">Please check the console for API response details.</p>
