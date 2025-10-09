@@ -9,3 +9,7 @@
   --color-minor: #124170;
 
 }
+.wrapper{
+  max-width: 1200px;
+  margin: auto;
+}
