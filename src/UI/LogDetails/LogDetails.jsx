@@ -199,10 +199,10 @@ function LogDetails() {
                   <span className="text-sm text-gray-500">Category:</span>
                   <p className="font-medium capitalize">{log.category}</p>
                 </div>
-                <div>
+                {/* <div>
                   <span className="text-sm text-gray-500">Created:</span>
                   <p className="font-medium">{new Date(log.createdAt).toLocaleDateString()}</p>
-                </div>
+                </div> */}
                 <div>
                   <span className="text-sm text-gray-500">Price per account:</span>
                   <p className="text-2xl font-bold text-green-600">₦{log.price}</p>

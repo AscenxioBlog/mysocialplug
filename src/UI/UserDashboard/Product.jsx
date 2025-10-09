@@ -59,14 +59,14 @@ function Product() {
 
   const getCategoryIcon = (category) => {
     switch (category?.toLowerCase()) {
-      case 'social': case 'facebook': return <FaFacebook className="text-blue-600 text-3xl" />
-      case 'instagram': return <FaInstagram className="text-pink-500 text-3xl" />
-      case 'twitter': return <FaTwitter className="text-sky-500 text-3xl" />
-      case 'tiktok': return <FaTiktok className="text-black text-3xl" />
-      case 'linkedin': return <FaLinkedin className="text-blue-700 text-3xl" />
-      case 'streaming': return <FaFacebook className="text-red-600 text-3xl" />
-      case 'music': return <FaInstagram className="text-green-500 text-3xl" />
-      default: return <FaFacebook className="text-gray-600 text-3xl" />
+       case 'social': case 'facebook': return <FaFacebook className="text-blue-600 text-3xl" />
+       case 'instagram': return <FaInstagram className="text-pink-500 text-3xl" />
+       case 'twitter': return <FaTwitter className="text-sky-500 text-3xl" />
+       case 'tiktok': return <FaTiktok className="text-black text-3xl" />
+       case 'linkedin': return <FaLinkedin className="text-blue-700 text-3xl" />
+       // case 'streaming': return <FaFacebook className="text-red-600 text-3xl" />
+       // case 'music': return <FaInstagram className="text-green-500 text-3xl" />
+       default: return null
     }
   }
 

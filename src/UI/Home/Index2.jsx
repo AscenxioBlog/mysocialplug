@@ -36,9 +36,9 @@ function Index2() {
       case 'twitter': return <FaTwitter className="text-sky-500 text-3xl" />
       case 'tiktok': return <FaTiktok className="text-black text-3xl" />
       case 'linkedin': return <FaLinkedin className="text-blue-700 text-3xl" />
-      case 'streaming': return <FaFacebook className="text-red-600 text-3xl" />
-      case 'music': return <FaInstagram className="text-green-500 text-3xl" />
-      default: return <FaFacebook className="text-gray-600 text-3xl" />
+      // case 'streaming': return <FaFacebook className="text-red-600 text-3xl" />
+      // case 'music': return <FaInstagram className="text-green-500 text-3xl" />
+      default: return null
     }
   }
 
@@ -49,8 +49,8 @@ function Index2() {
       case 'twitter': return 'bg-sky-50 border-sky-200'
       case 'tiktok': return 'bg-gray-50 border-gray-200'
       case 'linkedin': return 'bg-blue-50 border-blue-200'
-      case 'streaming': return 'bg-red-50 border-red-200'
-      case 'music': return 'bg-green-50 border-green-200'
+      // case 'streaming': return 'bg-red-50 border-red-200'
+      // case 'music': return 'bg-green-50 border-green-200'
       default: return 'bg-gray-50 border-gray-200'
     }
   }
@@ -119,7 +119,7 @@ function Index2() {
                       </div>
                       
                       <p className="text-gray-700 mb-2 text-sm">{log.description}</p>
-                      <p className="text-sm text-gray-500 mb-3">{new Date(log.createdAt).toLocaleDateString()}</p>
+                      {/* <p className="text-sm text-gray-500 mb-3">{new Date(log.createdAt).toLocaleDateString()}</p> */}
                       
                       <div className="flex justify-between items-center">
                         <span className="text-xl font-bold text-green-600">₦{log.price}</span>
