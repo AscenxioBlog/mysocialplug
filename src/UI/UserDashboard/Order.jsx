@@ -149,164 +149,26 @@ function Order() {
                   </button>
                 </div>
                 <div className="space-y-3">
-                  {order.credentials?.map((credentialString, index) => {
-                    // Parse pipe-separated credential string
-                    const parts = credentialString.split('|')
-                    const account = {
-                      username: parts[0] || '',
-                      password: parts[1] || '',
-                      email: parts[2] || '',
-                      mailPassword: parts[3] || '',
-                      twoFA: parts[4] || '',
-                      additional1: parts[5] || '',
-                      additional2: parts[6] || ''
-                    }
-                    
-                    return (
-                      <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                        <h5 className="font-medium text-gray-900 mb-3">Account {index + 1}</h5>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div className="flex items-start space-x-2">
-                            <div className="flex-1">
-                              <label className="text-xs text-gray-600 mb-1 block">Username</label>
-                              <textarea
-                                value={account.username}
-                                readOnly
-                                rows="1"
-                                className="w-full font-mono text-xs bg-white p-2 rounded border resize-none"
-                              />
-                            </div>
-                            <button
-                              onClick={() => copyToClipboard(account.username, `username-${order._id}-${index}`)}
-                              className="mt-5 p-1 text-gray-500 hover:text-blue-600"
-                            >
-                              {copiedField === `username-${order._id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
-                            </button>
-                          </div>
-                          
-                          <div className="flex items-start space-x-2">
-                            <div className="flex-1">
-                              <label className="text-xs text-gray-600 mb-1 block">Password</label>
-                              <div className="flex items-center space-x-1">
-                                <textarea
-                                  value={showPasswords[`${order._id}-${index}`] ? account.password : '••••••••'}
-                                  readOnly
-                                  rows="1"
-                                  className="flex-1 font-mono text-xs bg-white p-2 rounded border resize-none"
-                                />
-                                <button
-                                  onClick={() => togglePasswordVisibility(order._id, index)}
-                                  className="p-1 text-gray-500 hover:text-blue-600"
-                                >
-                                  {showPasswords[`${order._id}-${index}`] ? <FaEyeSlash /> : <FaEye />}
-                                </button>
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => copyToClipboard(account.password, `password-${order._id}-${index}`)}
-                              className="mt-5 p-1 text-gray-500 hover:text-blue-600"
-                            >
-                              {copiedField === `password-${order._id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
-                            </button>
-                          </div>
-                          
-                          <div className="flex items-start space-x-2">
-                            <div className="flex-1">
-                              <label className="text-xs text-gray-600 mb-1 block">Email</label>
-                              <textarea
-                                value={account.email}
-                                readOnly
-                                rows="1"
-                                className="w-full font-mono text-xs bg-white p-2 rounded border resize-none"
-                              />
-                            </div>
-                            <button
-                              onClick={() => copyToClipboard(account.email, `email-${order._id}-${index}`)}
-                              className="mt-5 p-1 text-gray-500 hover:text-blue-600"
-                            >
-                              {copiedField === `email-${order._id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
-                            </button>
-                          </div>
-                          
-                          <div className="flex items-start space-x-2">
-                            <div className="flex-1">
-                              <label className="text-xs text-gray-600 mb-1 block">Mail Password</label>
-                              <textarea
-                                value={account.mailPassword}
-                                readOnly
-                                rows="1"
-                                className="w-full font-mono text-xs bg-white p-2 rounded border resize-none"
-                              />
-                            </div>
-                            <button
-                              onClick={() => copyToClipboard(account.mailPassword, `mailpass-${order._id}-${index}`)}
-                              className="mt-5 p-1 text-gray-500 hover:text-blue-600"
-                            >
-                              {copiedField === `mailpass-${order._id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
-                            </button>
-                          </div>
-                          
-                          <div className="flex items-start space-x-2">
-                            <div className="flex-1">
-                              <label className="text-xs text-gray-600 mb-1 block">2FA Code</label>
-                              <textarea
-                                value={account.twoFA}
-                                readOnly
-                                rows="1"
-                                className="w-full font-mono text-xs bg-white p-2 rounded border resize-none"
-                              />
-                            </div>
-                            <button
-                              onClick={() => copyToClipboard(account.twoFA, `twofa-${order._id}-${index}`)}
-                              className="mt-5 p-1 text-gray-500 hover:text-blue-600"
-                            >
-                              {copiedField === `twofa-${order._id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
-                            </button>
-                          </div>
-                          
-                          {account.additional1 && (
-                            <div className="flex items-start space-x-2">
-                              <div className="flex-1">
-                                <label className="text-xs text-gray-600 mb-1 block">Additional Info 1</label>
-                                <textarea
-                                  value={account.additional1}
-                                  readOnly
-                                  rows="1"
-                                  className="w-full font-mono text-xs bg-white p-2 rounded border resize-none"
-                                />
-                              </div>
-                              <button
-                                onClick={() => copyToClipboard(account.additional1, `add1-${order._id}-${index}`)}
-                                className="mt-5 p-1 text-gray-500 hover:text-blue-600"
-                              >
-                                {copiedField === `add1-${order._id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
-                              </button>
-                            </div>
-                          )}
-                          
-                          {account.additional2 && (
-                            <div className="flex items-start space-x-2">
-                              <div className="flex-1">
-                                <label className="text-xs text-gray-600 mb-1 block">Additional Info 2</label>
-                                <textarea
-                                  value={account.additional2}
-                                  readOnly
-                                  rows="1"
-                                  className="w-full font-mono text-xs bg-white p-2 rounded border resize-none"
-                                />
-                              </div>
-                              <button
-                                onClick={() => copyToClipboard(account.additional2, `add2-${order._id}-${index}`)}
-                                className="mt-5 p-1 text-gray-500 hover:text-blue-600"
-                              >
-                                {copiedField === `add2-${order._id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                  {order.credentials?.map((credentialString, index) => (
+                    <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                      <div className="flex justify-between items-center mb-3">
+                        <h5 className="font-medium text-gray-900">Account {index + 1}</h5>
+                        <button
+                          onClick={() => copyToClipboard(credentialString, `credential-${order._id}-${index}`)}
+                          className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm"
+                        >
+                          {copiedField === `credential-${order._id}-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
+                          <span>Copy</span>
+                        </button>
                       </div>
-                    )
-                  }) || (
+                      <textarea
+                        value={credentialString}
+                        readOnly
+                        rows="5"
+                        className="w-full font-mono text-xs bg-white p-3 rounded border resize-none"
+                      />
+                    </div>
+                  )) || (
                     <p className="text-gray-500">No account details available</p>
                   )}
                 </div>

@@ -103,7 +103,7 @@ function DashboardContent() {
               </div>
               
               <div className="flex items-center space-x-4">
-                <div className="text-right">
+                <div className="text-right hidden sm:block">
                   <p className="text-sm font-medium text-gray-900">{userData.name}</p>
                   <p className="text-xs text-gray-500">{userData.email}</p>
                 </div>
@@ -116,9 +116,34 @@ function DashboardContent() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
+        <main className="flex-1 overflow-y-auto bg-gray-50 p-6 pb-20 lg:pb-6">
           <Outlet />
         </main>
+
+        {/* Mobile Bottom Navigation */}
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30">
+          <div className="flex justify-around items-center py-2">
+            {menuItems.map((item, index) => (
+              <Link
+                key={index}
+                to={item.path}
+                className={`flex flex-col items-center py-2 px-3 text-xs ${
+                  location.pathname === item.path ? 'text-blue-600' : 'text-gray-600'
+                }`}
+              >
+                <span className="text-lg mb-1">{item.icon}</span>
+                <span className="truncate">{item.name}</span>
+              </Link>
+            ))}
+            <button
+              onClick={handleLogout}
+              className="flex flex-col items-center py-2 px-3 text-xs text-gray-600"
+            >
+              <FaSignOutAlt className="text-lg mb-1" />
+              <span>Logout</span>
+            </button>
+          </div>
+        </nav>
       </div>
     </div>
   )

@@ -8,6 +8,8 @@ import Footer from './Footer/Footer'
 import MainContact from './UI/Contact/MainContact'
 import Login from './UI/Login/Login'
 import Register from './UI/Register/Register'
+import ForgotPassword from './UI/Auth/ForgotPassword'
+import ResetPassword from './UI/Auth/ResetPassword'
 import MainDash from './UI/UserDashboard/MainDash'
 import DashboardContent from './UI/UserDashboard/DashboardContent'
 import Overview from './UI/UserDashboard/Overview'
@@ -27,7 +29,7 @@ import PaymentCallback from './UI/PaymentCallback'
 
 function AppContent() {
   const location = useLocation();
-  const hideHeaderFooter = ['/login', '/register'].includes(location.pathname) || location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin');
+  const hideHeaderFooter = ['/login', '/register', '/forgot-password'].includes(location.pathname) || location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/reset-password');
 
   return (
     <div>
@@ -38,6 +40,8 @@ function AppContent() {
         <Route path="/products" element={<ProtectedRoute><Product /></ProtectedRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/payment/callback" element={<PaymentCallback />} />
 
         <Route path="/log-details/:id" element={<LogDetails />} />

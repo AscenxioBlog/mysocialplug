@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { FaWallet, FaShoppingCart, FaChartLine, FaUser, FaPlus, FaHistory, FaCopy, FaCheck } from 'react-icons/fa'
 import { useAuth } from '../../contexts/AuthContext'
 import apiService from '../../services/apiService'
+import Product from './Product'
 
 function Overview() {
   const [copied, setCopied] = useState(false)
@@ -140,7 +141,7 @@ function Overview() {
           </div>
         </div>
         
-        <div className="bg-white rounded-xl p-6 shadow-sm">
+        {/* <div className="bg-white rounded-xl p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Member Since</p>
@@ -148,13 +149,13 @@ function Overview() {
             </div>
             <FaUser className="text-orange-500 text-2xl" />
           </div>
-        </div>
+        </div> */}
       </div>
 
      
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-xl p-6 shadow-sm">
+      {/* <div className="bg-white rounded-xl p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <button
@@ -186,7 +187,9 @@ function Overview() {
             <span>Order History</span>
           </Link>
         </div>
-      </div>
+      </div> */}
+
+      <Product />
 
       {/* Amount Modal */}
       {showAmountModal && (

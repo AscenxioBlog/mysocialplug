@@ -109,10 +109,10 @@ function Product() {
           {Object.values(filteredGroupedProducts).flat().length} products found
         </div>
         
-        <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg">
+        {/* <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg">
           <FaWallet />
           <span className="font-semibold">₦{walletBalance.toFixed(2)}</span>
-        </div>
+        </div> */}
       </div>
 
       {/* Filters */}
