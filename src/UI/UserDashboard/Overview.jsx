@@ -12,6 +12,7 @@ function Overview() {
   const [totalSpent, setTotalSpent] = useState(0)
   const [loading, setLoading] = useState(true)
   const [showAmountModal, setShowAmountModal] = useState(false)
+  const [processing, setProcessing] = useState(false)
   const [amount, setAmount] = useState('')
   const { user } = useAuth()
   
@@ -89,11 +90,13 @@ function Overview() {
     setAmount('')
   }
 
-  const processPayment = () => {
+  const processPayment = async () => {
     const fundAmount = parseInt(amount)
     if (fundAmount && fundAmount > 0) {
+      setProcessing(true)
+      await handleAddFunds(fundAmount)
+      setProcessing(false)
       setShowAmountModal(false)
-      handleAddFunds(fundAmount)
     } else {
       alert('Please enter a valid amount')
     }
@@ -228,15 +231,24 @@ function Overview() {
             <div className="flex space-x-3">
               <button
                 onClick={() => setShowAmountModal(false)}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+                disabled={processing}
+                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={processPayment}
-                className="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors"
+                disabled={processing}
+                className="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 flex items-center justify-center space-x-2"
               >
-                Continue
+                {processing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <span>Continue</span>
+                )}
               </button>
             </div>
           </div>

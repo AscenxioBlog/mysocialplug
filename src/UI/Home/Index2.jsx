@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaTiktok } from "react-icons/fa";
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaTiktok, FaSearch } from "react-icons/fa";
 import API_URL from '../../Config';
 
 function Index2() {
   const [logs, setLogs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -30,16 +31,41 @@ function Index2() {
     navigate(`/log-details/${product._id || product.id}`)
   }
 
+  const getCategoryImage = (category) => {
+    const imageMap = {
+      'facebook': '/Facebook dating.jpg',
+      'tiktok': '/TikTok.jpg',
+      'twitter': '/X.jpg',
+      'x': '/X.jpg',
+      'snapchat': '/Snapchart.jpg',
+      'gmail': '/Gmail.jpg',
+      'expressvpn': '/Express VPN.jpg',
+      'nordvpn': '/Nord vpn.jpg',
+      'hmavpn': '/Hma Vpn.jpg',
+      'piavpn': '/Pia vpn.jpg',
+      'pvanishvpn': '/p vanish vpn.jpg',
+      'surfshark': '/Surfshark.jpg',
+      'proxy': '/ia sock 5 proxy.jpg',
+      'vpn': '/Nord vpn.jpg',
+      'texting app': '/Texting app.jpg',
+      'textingapp': '/Texting app.jpg'
+    }
+    return imageMap[category?.toLowerCase()] || null
+  }
+
   const getCategoryIcon = (category) => {
+    const imageSrc = getCategoryImage(category)
+    if (imageSrc) {
+      return <img src={imageSrc} alt={category} className="w-12 h-12 object-cover rounded-lg" />
+    }
+    
     switch (category?.toLowerCase()) {
       case 'social': case 'facebook': return <FaFacebook className="text-blue-600 text-3xl" />
       case 'instagram': return <FaInstagram className="text-pink-500 text-3xl" />
       case 'twitter': return <FaTwitter className="text-sky-500 text-3xl" />
       case 'tiktok': return <FaTiktok className="text-black text-3xl" />
       case 'linkedin': return <FaLinkedin className="text-blue-700 text-3xl" />
-      // case 'streaming': return <FaFacebook className="text-red-600 text-3xl" />
-      // case 'music': return <FaInstagram className="text-green-500 text-3xl" />
-      default: return null
+      default: return <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 font-bold text-xs">{category?.charAt(0)?.toUpperCase()}</div>
     }
   }
 
@@ -47,16 +73,29 @@ function Index2() {
     switch (category?.toLowerCase()) {
       case 'social': case 'facebook': return 'bg-blue-50 border-blue-200'
       case 'instagram': return 'bg-pink-50 border-pink-200'
-      case 'twitter': return 'bg-sky-50 border-sky-200'
+      case 'twitter': case 'x': return 'bg-sky-50 border-sky-200'
       case 'tiktok': return 'bg-gray-50 border-gray-200'
       case 'linkedin': return 'bg-blue-50 border-blue-200'
-      // case 'streaming': return 'bg-red-50 border-red-200'
-      // case 'music': return 'bg-green-50 border-green-200'
+      case 'snapchat': return 'bg-yellow-50 border-yellow-200'
+      case 'gmail': return 'bg-red-50 border-red-200'
+      case 'expressvpn': case 'nordvpn': case 'hmavpn': case 'piavpn': case 'pvanishvpn': case 'surfshark': case 'vpn': return 'bg-green-50 border-green-200'
+      case 'proxy': return 'bg-purple-50 border-purple-200'
+      case 'texting app': case 'textingapp': return 'bg-indigo-50 border-indigo-200'
       default: return 'bg-gray-50 border-gray-200'
     }
   }
 
-  const groupedLogs = logs.reduce((acc, log) => {
+  // Filter logs based on search term
+  const filteredLogs = logs.filter(log => {
+    const searchLower = searchTerm.toLowerCase()
+    return (
+      log.logName?.toLowerCase().includes(searchLower) ||
+      log.description?.toLowerCase().includes(searchLower) ||
+      log.category?.toLowerCase().includes(searchLower)
+    )
+  })
+
+  const groupedLogs = filteredLogs.reduce((acc, log) => {
     const category = log.category || 'other'
     if (!acc[category]) {
       acc[category] = []
@@ -92,6 +131,20 @@ function Index2() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Social Media Accounts Store</h1>
           <p className="text-gray-600">Choose your platform and country</p>
+          
+          {/* Search Bar */}
+          <div className="max-w-md mx-auto mt-6">
+            <div className="relative">
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+              />
+            </div>
+          </div>
         </div>
 
         {Object.keys(groupedLogs).length === 0 ? (
@@ -114,13 +167,24 @@ function Index2() {
                       onClick={() => handleViewDetails(log)}
                       className={`${getCategoryColor(category)} p-4 rounded-lg border hover:shadow-md transition-all cursor-pointer`}
                     >
-                      <div className="flex justify-between items-start mb-3">
-                        <span className="text-lg font-semibold">{log.logName}</span>
-                        <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">{category}</span>
+                      <div className="flex items-center gap-3 mb-3">
+                        {getCategoryImage(category) && (
+                          <img 
+                            src={getCategoryImage(category)} 
+                            alt={category} 
+                            className="w-10 h-10 object-cover rounded-lg" 
+                          />
+                        )}
+                        <div className="flex-1">
+                          <span className="text-lg font-semibold block">{log.logName}</span>
+                          <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">{category}</span>
+                        </div>
                       </div>
                       
                       <p className="text-gray-700 mb-2 text-sm">{log.description}</p>
-                      {/* <p className="text-sm text-gray-500 mb-3">{new Date(log.createdAt).toLocaleDateString()}</p> */}
+                      <p className="text-sm text-blue-600 mb-3">
+                        Available: {log.availableQuantity || log.accounts?.length || log.availableAccounts || log.stock || 0} accounts
+                      </p>
                       
                       <div className="flex justify-between items-center">
                         <span className="text-xl font-bold text-green-600">₦{log.price}</span>

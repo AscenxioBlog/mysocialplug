@@ -38,17 +38,17 @@ function Header() {
       </header>
 
       {/* Mobile Header */}
-      <header className="md:hidden bg-gradient-to-r from-blue-500 to-green-300 shadow-md py-4">
-        <div className="flex items-center justify-between px-4">
+      <header className="md:hidden  bg-blue-500  shadow-md py-4">
+        <div className="flex items-center justify-center px-4">
           <span className="font-bold text-2xl text-white tracking-widest font-sans drop-shadow-lg">
-            MYSOCIALLOG
+            My Social Plug
           </span>
-          <button 
+          {/* <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="text-white text-2xl"
           >
             {isMenuOpen ? <FaTimes /> : <FaBars />}
-          </button>
+          </button> */}
         </div>
         
         {/* Mobile Menu Overlay */}
