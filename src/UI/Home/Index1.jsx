@@ -36,7 +36,7 @@ function Index1() {
   }, [])
 
   return (
-    <div className="h-[250px] md:h-[400px] relative overflow-hidden">
+    <div className="h-[250px] md:h-[500px] lg:h-[600px] relative overflow-hidden">
       {/* Sliding Banner Background Images */}
       <div className="absolute inset-0">
         {banners.map((banner, index) => (
@@ -57,7 +57,7 @@ function Index1() {
                 <img
                   src={banner.fallback}
                   alt={banner.alt}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover md:object-contain lg:object-cover"
                 />
               </picture>
             </a>
@@ -76,17 +76,17 @@ function Index1() {
               {/* Accounts Store */}
             </span>
           </h1>
-          <p className="hidden md:block text-xl text-gray-300 mb-8 max-w-3xl mx-auto animate-fade-in-up animation-delay-500">
+          {/* <p className="hidden md:block text-xl text-gray-300 mb-8 max-w-3xl mx-auto animate-fade-in-up animation-delay-500">
             Get instant access to verified social media accounts with real followers. 
             Boost your online presence across all major platforms.
-          </p>
+          </p> */}
           <div className="hidden md:flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-1000">
-            <button className="bg-minor text-white px-8 py-4 rounded-full font-semibold hover:scale-105 transition-transform duration-300 flex items-center gap-2 pointer-events-auto">
+            {/* <button className="bg-minor text-white px-8 py-4 rounded-full font-semibold hover:scale-105 transition-transform duration-300 flex items-center gap-2 pointer-events-auto">
               Browse Accounts <FaArrowRight />
             </button>
             <button className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300 pointer-events-auto">
               Learn More
-            </button>
+            </button> */}
           </div>
         </div>
 
