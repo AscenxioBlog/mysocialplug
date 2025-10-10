@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { FiPlus, FiDollarSign, FiCreditCard } from 'react-icons/fi'
+import API_URL from '../../Config'
 
 function Wallet() {
   const [balance, setBalance] = useState(0)
@@ -12,7 +13,7 @@ function Wallet() {
 
   const fetchBalance = async () => {
     try {
-      const response = await fetch('https://sociallogs.onrender.com/api/wallet/balance', {
+      const response = await fetch(`${API_URL}/api/wallet/balance`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
@@ -21,7 +22,7 @@ function Wallet() {
       const data = await response.json()
       setBalance(data.balance || 0)
     } catch (error) {
-      console.error('Error fetching balance:', error)
+      // console.error('Error fetching balance:', error)
     }
   }
 
@@ -31,7 +32,7 @@ function Wallet() {
 
     setLoading(true)
     try {
-      const response = await fetch('https://sociallogs.onrender.com/api/wallet/add-funds', {
+      const response = await fetch(`${API_URL}/api/wallet/add-funds`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,7 +51,7 @@ function Wallet() {
         alert(data.message || 'Failed to initialize payment')
       }
     } catch (error) {
-      console.error('Error adding funds:', error)
+      // console.error('Error adding funds:', error)
       alert('Error adding funds')
     } finally {
       setLoading(false)

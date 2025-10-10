@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaTiktok } from "react-icons/fa";
+import API_URL from '../../Config';
 
 function Index2() {
   const [logs, setLogs] = useState([])
@@ -14,7 +15,7 @@ function Index2() {
 
   const fetchLogs = async () => {
     try {
-      const response = await fetch('https://sociallogs.onrender.com/api/logs')
+      const response = await fetch(`${API_URL}/api/logs`)
       const data = await response.json()
       setLogs(data.logs || [])
     } catch (error) {

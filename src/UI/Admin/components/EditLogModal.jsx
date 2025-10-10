@@ -7,27 +7,21 @@ function EditLogModal({ show, onClose, updateForm, setUpdateForm, onSubmit }) {
     setUpdateForm({ ...updateForm, [e.target.name]: e.target.value })
   }
 
-  const handleAccountChange = (index, field, value) => {
-    const updatedAccounts = [...updateForm.accounts]
-    updatedAccounts[index][field] = value
+  const handleAccountChange = (index, value) => {
+    const updatedAccounts = [...(updateForm.accounts || [])]
+    updatedAccounts[index] = value
     setUpdateForm({ ...updateForm, accounts: updatedAccounts })
   }
 
   const addAccount = () => {
     setUpdateForm({
       ...updateForm,
-      accounts: [...updateForm.accounts, {
-        username: '',
-        email: '',
-        password: '',
-        twoFA: '',
-        mailPassword: ''
-      }]
+      accounts: [...(updateForm.accounts || []), '']
     })
   }
 
   const removeAccount = (index) => {
-    const updatedAccounts = updateForm.accounts.filter((_, i) => i !== index)
+    const updatedAccounts = (updateForm.accounts || []).filter((_, i) => i !== index)
     setUpdateForm({ ...updateForm, accounts: updatedAccounts })
   }
 
@@ -75,21 +69,15 @@ function EditLogModal({ show, onClose, updateForm, setUpdateForm, onSubmit }) {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                <select 
+                <input 
+                  type="text" 
                   name="category"
                   value={updateForm.category}
                   onChange={handleFormChange}
+                  placeholder="Enter platform (e.g., Facebook, Instagram, TikTok)"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   required
-                >
-                  <option value="">Select Category</option>
-                  <option value="facebook">Facebook</option>
-                  <option value="instagram">Instagram</option>
-                  <option value="x">X (Twitter)</option>
-                  <option value="email">Email</option>
-                  <option value="vpn">VPN</option>
-                  <option value="tiktok">TikTok</option>
-                </select>
+                />
               </div>
             </div>
           </div>
@@ -108,11 +96,11 @@ function EditLogModal({ show, onClose, updateForm, setUpdateForm, onSubmit }) {
             </div>
             
             <div className="space-y-4">
-              {updateForm.accounts?.map((account, index) => (
+              {(updateForm.accounts || []).map((account, index) => (
                 <div key={index} className="p-4 border border-gray-200 rounded-lg">
                   <div className="flex justify-between items-center mb-3">
                     <h5 className="font-medium text-gray-700">Account {index + 1}</h5>
-                    {updateForm.accounts.length > 1 && (
+                    {(updateForm.accounts || []).length > 1 && (
                       <button
                         type="button"
                         onClick={() => removeAccount(index)}
@@ -122,55 +110,22 @@ function EditLogModal({ show, onClose, updateForm, setUpdateForm, onSubmit }) {
                       </button>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Username</label>
-                      <input 
-                        type="text" 
-                        value={account.username}
-                        onChange={(e) => handleAccountChange(index, 'username', e.target.value)}
-                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500" 
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
-                      <input 
-                        type="email" 
-                        value={account.email}
-                        onChange={(e) => handleAccountChange(index, 'email', e.target.value)}
-                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500" 
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Password</label>
-                      <input 
-                        type="text" 
-                        value={account.password}
-                        onChange={(e) => handleAccountChange(index, 'password', e.target.value)}
-                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500" 
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">2FA Code</label>
-                      <input 
-                        type="text" 
-                        value={account.twoFA}
-                        onChange={(e) => handleAccountChange(index, 'twoFA', e.target.value)}
-                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500" 
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Mail Password</label>
-                      <input 
-                        type="text" 
-                        value={account.mailPassword}
-                        onChange={(e) => handleAccountChange(index, 'mailPassword', e.target.value)}
-                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500" 
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Account Details
+                    </label>
+                    <textarea
+                      value={account}
+                      onChange={(e) => handleAccountChange(index, e.target.value)}
+                      placeholder={`Paste account details here:
+username:user@email.com:password123:2FA123:mailpass123`}
+                      rows="3"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Format: username:email:password:2fa:mailpassword
+                    </p>
                   </div>
                 </div>
               ))}

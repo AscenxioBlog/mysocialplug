@@ -21,10 +21,10 @@ function useLogManagement() {
         const data = await response.json()
         setLogs(data.logs || [])
       } else {
-        console.error('Failed to fetch logs')
+        // Failed to fetch logs
       }
     } catch (error) {
-      console.error('Error fetching logs:', error)
+      // Error fetching logs
     } finally {
       setLoading(false)
     }
@@ -48,7 +48,6 @@ function useLogManagement() {
         return null
       }
     } catch (error) {
-      console.error('Error fetching log details:', error)
       alert('Error fetching log details')
       return null
     }
@@ -77,7 +76,6 @@ function useLogManagement() {
         return false
       }
     } catch (error) {
-      console.error('Error updating log:', error)
       alert('Error updating log')
       return false
     }
@@ -106,7 +104,6 @@ function useLogManagement() {
         return false
       }
     } catch (error) {
-      console.error('Error deleting log:', error)
       alert('Error deleting log')
       return false
     }
@@ -123,8 +120,6 @@ function useLogManagement() {
         accounts: bulkData.accounts
       }
       
-      console.log('Sending payload:', payload)
-      
       const response = await fetch(`${API_URL}/api/admin/logs`, {
         method: 'POST',
         headers: {
@@ -140,13 +135,10 @@ function useLogManagement() {
         fetchLogs()
         return bulkData.accounts.length
       } else {
-        const errorData = await response.text()
-        console.error('API Error:', response.status, errorData)
         alert('Failed to create products')
         return 0
       }
     } catch (error) {
-      console.error('Error creating bulk products:', error)
       alert('Error creating products')
       return 0
     }

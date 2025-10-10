@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
-      console.log('Auth loading started')
+      // console.log('Auth loading started')
       const token = localStorage.getItem('token')
       const userData = localStorage.getItem('user')
       
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
         setUser(JSON.parse(userData))
         apiService.setToken(token)
       }
-      console.log('Auth loading finished')
+      // console.log('Auth loading finished')
       setLoading(false)
     }
     

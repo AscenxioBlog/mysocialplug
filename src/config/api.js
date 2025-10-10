@@ -1,5 +1,7 @@
+import API_URL from '../Config'
+
 const API_CONFIG = {
-  BASE_URL: 'https://sociallogs.onrender.com/api',
+  BASE_URL: `${API_URL}/api`,
   ENDPOINTS: {
     // Auth endpoints
     REGISTER: '/auth',

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { FaCheck, FaCopy, FaDownload, FaEye, FaEyeSlash } from 'react-icons/fa'
+import API_URL from '../../Config'
 
 function PurchaseSuccess() {
   const { orderId } = useParams()
@@ -12,9 +13,6 @@ function PurchaseSuccess() {
 
   useEffect(() => {
     if (location.state?.orderData) {
-      console.log('=== ORDER DATA FROM STATE ===');
-      console.log('Order Data:', location.state.orderData);
-      console.log('Accounts:', location.state.orderData.accounts);
       setOrder(location.state.orderData)
     } else {
       fetchOrderDetails()
@@ -23,7 +21,7 @@ function PurchaseSuccess() {
 
   const fetchOrderDetails = async () => {
     try {
-      const response = await fetch(`https://sociallogs.onrender.com/api/orders/${orderId}`, {
+      const response = await fetch(`${API_URL}/api/orders/${orderId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
@@ -37,7 +35,7 @@ function PurchaseSuccess() {
         setOrder(orderWithCredentials)
       }
     } catch (error) {
-      console.error('Error fetching order:', error)
+      // Error handled silently
     }
   }
 
@@ -123,146 +121,36 @@ function PurchaseSuccess() {
         </div>
 
         {/* Debug Info */}
-        <div className="mb-4 p-3 bg-gray-100 rounded text-xs">
+        {/* <div className="mb-4 p-3 bg-gray-100 rounded text-xs">
           <p><strong>Debug:</strong> Credentials Array Length: {order.credentials?.length || 0}</p>
           <p><strong>Order Keys:</strong> {Object.keys(order).join(', ')}</p>
           <p><strong>Raw Credentials:</strong> {JSON.stringify(order.credentials)}</p>
-        </div>
+        </div> */}
         
         <div className="space-y-4">
-          {order.credentials?.length > 0 ? order.credentials.map((credentialString, index) => {
-            // Parse pipe-separated credential string
-            const parts = credentialString.split('|')
-            const account = {
-              username: parts[0] || '',
-              password: parts[1] || '',
-              email: parts[2] || '',
-              mailPassword: parts[3] || '',
-              twoFA: parts[4] || '',
-              additional1: parts[5] || '',
-              additional2: parts[6] || ''
-            }
-            
-            return (
-              <div key={index} className="bg-gray-50 p-4 rounded-lg border">
-              <h3 className="font-semibold text-gray-900 mb-3">Account {index + 1}</h3>
-              
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-600">Username</p>
-                    <p className="font-mono text-sm bg-white p-2 rounded border">{account.username}</p>
-                  </div>
-                  <button
-                    onClick={() => copyToClipboard(account.username, `username-${index}`)}
-                    className="ml-2 p-2 text-gray-500 hover:text-blue-600"
-                  >
-                    {copiedIndex === `username-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-600">Email</p>
-                    <p className="font-mono text-sm bg-white p-2 rounded border">{account.email}</p>
-                  </div>
-                  <button
-                    onClick={() => copyToClipboard(account.email, `email-${index}`)}
-                    className="ml-2 p-2 text-gray-500 hover:text-blue-600"
-                  >
-                    {copiedIndex === `email-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-600">Password</p>
-                    <div className="flex items-center">
-                      <p className="font-mono text-sm bg-white p-2 rounded border flex-1">
-                        {showPasswords[index] ? account.password : '••••••••'}
-                      </p>
-                      <button
-                        onClick={() => togglePasswordVisibility(index)}
-                        className="ml-2 p-2 text-gray-500 hover:text-blue-600"
-                      >
-                        {showPasswords[index] ? <FaEyeSlash /> : <FaEye />}
-                      </button>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => copyToClipboard(account.password, `password-${index}`)}
-                    className="ml-2 p-2 text-gray-500 hover:text-blue-600"
-                  >
-                    {copiedIndex === `password-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
-                  </button>
-                </div>
-
-                {account.twoFA && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-600">2FA Code</p>
-                      <p className="font-mono text-sm bg-white p-2 rounded border">{account.twoFA}</p>
-                    </div>
-                    <button
-                      onClick={() => copyToClipboard(account.twoFA, `twofa-${index}`)}
-                      className="ml-2 p-2 text-gray-500 hover:text-blue-600"
-                    >
-                      {copiedIndex === `twofa-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
-                    </button>
-                  </div>
-                )}
-
-                {account.mailPassword && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-600">Mail Password</p>
-                      <p className="font-mono text-sm bg-white p-2 rounded border">{account.mailPassword}</p>
-                    </div>
-                    <button
-                      onClick={() => copyToClipboard(account.mailPassword, `mailpass-${index}`)}
-                      className="ml-2 p-2 text-gray-500 hover:text-blue-600"
-                    >
-                      {copiedIndex === `mailpass-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
-                    </button>
-                  </div>
-                )}
-                
-                {account.additional1 && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-600">Additional Info 1</p>
-                      <p className="font-mono text-sm bg-white p-2 rounded border">{account.additional1}</p>
-                    </div>
-                    <button
-                      onClick={() => copyToClipboard(account.additional1, `add1-${index}`)}
-                      className="ml-2 p-2 text-gray-500 hover:text-blue-600"
-                    >
-                      {copiedIndex === `add1-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
-                    </button>
-                  </div>
-                )}
-                
-                {account.additional2 && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-600">Additional Info 2</p>
-                      <p className="font-mono text-sm bg-white p-2 rounded border">{account.additional2}</p>
-                    </div>
-                    <button
-                      onClick={() => copyToClipboard(account.additional2, `add2-${index}`)}
-                      className="ml-2 p-2 text-gray-500 hover:text-blue-600"
-                    >
-                      {copiedIndex === `add2-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
-                    </button>
-                  </div>
-                )}
+          {order.credentials?.length > 0 ? order.credentials.map((credentialString, index) => (
+            <div key={index} className="bg-gray-50 p-4 rounded-lg border">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-semibold text-gray-900">Account {index + 1}</h3>
+                <button
+                  onClick={() => copyToClipboard(credentialString, `credential-${index}`)}
+                  className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm"
+                >
+                  {copiedIndex === `credential-${index}` ? <FaCheck className="text-green-500" /> : <FaCopy />}
+                  <span>Copy</span>
+                </button>
               </div>
+              <textarea
+                value={credentialString}
+                readOnly
+                rows="3"
+                className="w-full font-mono text-sm bg-white p-3 rounded border resize-none"
+              />
             </div>
-            )
-          }) : (
+          )) : (
             <div className="text-center py-8">
               <p className="text-red-600">No account details found in the response.</p>
-              <p className="text-sm text-gray-500 mt-2">Please check the console for API response details.</p>
+              <p className="text-sm text-gray-500 mt-2">Please contact support if this issue persists.</p>
             </div>
           )}
         </div>

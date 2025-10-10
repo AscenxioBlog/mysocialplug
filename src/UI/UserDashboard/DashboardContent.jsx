@@ -26,7 +26,7 @@ function DashboardContent() {
       const response = await apiService.getWalletBalance()
       setWalletBalance(response.balance || 0)
     } catch (error) {
-      console.error('Error fetching wallet balance:', error)
+      // console.error('Error fetching wallet balance:', error)
     }
   }
 

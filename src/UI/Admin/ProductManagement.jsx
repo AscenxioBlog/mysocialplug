@@ -21,9 +21,8 @@ function ProductManagement() {
     logName: '',
     description: '',
     price: '',
-    username: '',
-    password: '',
-    category: ''
+    category: '',
+    accounts: ['']
   })
   
   const [bulkForm, setBulkForm] = useState({
@@ -36,7 +35,7 @@ function ProductManagement() {
 
   const { logs, loading, fetchLogDetails, updateLog, deleteLog, createBulkLogs } = useLogManagement()
 
-  console.log('Log data:', logs) // Add this in your component to see the actual data structure
+
 
   // Filter logs based on search and category
   const filteredLogs = logs.filter(log => {
@@ -64,9 +63,8 @@ function ProductManagement() {
       logName: log.logName || '',
       description: log.description || '',
       price: log.price || '',
-      username: log.username || '',
-      password: log.password || '',
-      category: log.category || ''
+      category: log.category || '',
+      accounts: log.accounts || ['']
     })
     setShowUpdateModal(true)
   }
@@ -74,7 +72,25 @@ function ProductManagement() {
   // Handle update log submit
   const handleUpdateSubmit = async (e) => {
     e.preventDefault()
-    const success = await updateLog(selectedLog._id, updateForm)
+    
+    // Check if we're adding new accounts or just updating other fields
+    const originalAccountsCount = selectedLog.accounts?.length || 0
+    const newAccountsCount = updateForm.accounts?.length || 0
+    
+    let updateData = {
+      logName: updateForm.logName,
+      description: updateForm.description,
+      price: updateForm.price,
+      category: updateForm.category
+    }
+    
+    // If there are more accounts than original, add them using addAccounts
+    if (newAccountsCount > originalAccountsCount) {
+      const newAccounts = updateForm.accounts.slice(originalAccountsCount)
+      updateData.addAccounts = newAccounts.filter(account => account.trim() !== '')
+    }
+    
+    const success = await updateLog(selectedLog._id, updateData)
     if (success) {
       setShowUpdateModal(false)
     }

@@ -45,7 +45,7 @@ function LogsTable({ logs, loading, onView, onEdit, onDelete }) {
                     <span className="font-medium text-gray-900">₦{log.price}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="font-medium text-gray-900">{log.stock || log.quantity || 1}</span>
+                    <span className="font-medium text-gray-900">{log.availableQuantity || log.quantity || 1}</span>
                   </td>
                   <td className="px-6 py-4">
                     <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">

@@ -8,6 +8,8 @@ import Product from './Product'
 function Overview() {
   const [copied, setCopied] = useState(false)
   const [walletBalance, setWalletBalance] = useState(0)
+  const [totalOrders, setTotalOrders] = useState(0)
+  const [totalSpent, setTotalSpent] = useState(0)
   const [loading, setLoading] = useState(true)
   const [showAmountModal, setShowAmountModal] = useState(false)
   const [amount, setAmount] = useState('')
@@ -18,17 +20,19 @@ function Overview() {
     email: user?.email || '',
     walletBalance: walletBalance,
     walletNumber: user?.id || '1A2B3C4D5E6F7G8H9I0J',
-    totalOrders: 0,
-    totalSpent: 0,
+    totalOrders: totalOrders,
+    totalSpent: totalSpent,
     memberSince: user?.createdAt ? new Date(user.createdAt).getFullYear() : '2024'
   }
 
   useEffect(() => {
     fetchWalletBalance()
+    fetchOrderStats()
     
     // Refresh balance when user returns from payment
     const handleFocus = () => {
       fetchWalletBalance()
+      fetchOrderStats()
     }
     
     window.addEventListener('focus', handleFocus)
@@ -39,9 +43,21 @@ function Overview() {
     try {
       const response = await apiService.getWalletBalance()
       setWalletBalance(response.balance || 0)
-      console.log('Wallet balance fetched:', response)  
     } catch (error) {
-      console.error('Error fetching wallet balance:', error)
+      // Error handled silently
+    }
+  }
+
+  const fetchOrderStats = async () => {
+    try {
+      const response = await apiService.getOrders()
+      if (response.orders) {
+        setTotalOrders(response.orders.length)
+        const total = response.orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0)
+        setTotalSpent(total)
+      }
+    } catch (error) {
+      // Error handled silently
     } finally {
       setLoading(false)
     }
@@ -64,7 +80,6 @@ function Overview() {
         alert('Payment URL not available')
       }
     } catch (error) {
-      console.error('Error adding funds:', error)
       alert('Error initializing payment')
     }
   }

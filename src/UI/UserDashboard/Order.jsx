@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FaShoppingCart, FaCalendarAlt, FaCheckCircle, FaEye, FaEyeSlash, FaCopy, FaCheck } from 'react-icons/fa'
 import apiService from '../../services/apiService'
+import RecentOrder from './RecentOrder'
 
 function Order() {
   const navigate = useNavigate()
@@ -17,7 +18,7 @@ function Order() {
   const fetchOrders = async () => {
     try {
       const response = await apiService.getOrders()
-      console.log('API Response:', response)
+      // console.log('API Response:', response)
       const apiOrders = response.orders || response || []
       
       // Get stored credentials from localStorage
@@ -31,7 +32,7 @@ function Order() {
       
       setOrders(ordersWithCredentials)
     } catch (error) {
-      console.error('Error fetching orders:', error)
+      // console.error('Error fetching orders:', error)
       // Fallback to localStorage if API endpoint doesn't exist
       const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]')
       setOrders(storedOrders.reverse())
@@ -68,6 +69,7 @@ function Order() {
 
   return (
     <div className="space-y-6">
+      <RecentOrder />
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">My Orders</h1>
         <div className="text-sm text-gray-600">

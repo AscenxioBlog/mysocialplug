@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { FaArrowLeft, FaShoppingCart, FaMinus, FaPlus } from 'react-icons/fa'
 import { useAuth } from '../../contexts/AuthContext'
 import apiService from '../../services/apiService'
+import API_URL from '../../Config'
 
 function LogDetails() {
   const { id } = useParams()
@@ -25,18 +26,9 @@ function LogDetails() {
   const fetchLogDetails = async () => {
     try {
       const response = await apiService.getLogDetails(id)
-      console.log('=== LOG DETAILS API RESPONSE ===');
-      console.log('Full Response:', response);
-      console.log('Log Object:', response.log);
-      console.log('All Log Keys:', Object.keys(response.log || {}));
-      console.log('Accounts:', response.log?.accounts);
-      console.log('Stock:', response.log?.stock);
-      console.log('Available Accounts:', response.log?.availableAccounts);
-      console.log('Accounts Length:', response.log?.accounts?.length);
       setLog(response.log)
     } catch (error) {
       setError('Failed to load log details')
-      console.error('Error fetching log details:', error)
     } finally {
       setLoading(false)
     }
@@ -45,12 +37,9 @@ function LogDetails() {
   const fetchWalletBalance = async () => {
     try {
       const response = await apiService.getWalletBalance()
-      console.log('=== WALLET BALANCE ===');
-      console.log('Wallet API Response:', response);
-      console.log('Balance:', response.balance);
       setWalletBalance(response.balance || 0)
     } catch (error) {
-      console.error('Error fetching wallet balance:', error)
+      // Error handled silently
     }
   }
 
@@ -68,13 +57,7 @@ function LogDetails() {
 
     setPurchasing(true)
     try {
-      console.log('=== PURCHASE REQUEST ===');
-      console.log('Log ID:', id);
-      console.log('Quantity:', quantity);
-      console.log('Total Cost:', totalCost);
-      console.log('Request URL:', `https://sociallogs.onrender.com/api/logs/${id}/purchase`);
-      
-      const response = await fetch(`https://sociallogs.onrender.com/api/logs/${id}/purchase`, {
+      const response = await fetch(`${API_URL}/api/logs/${id}/purchase`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -86,19 +69,7 @@ function LogDetails() {
         })
       })
 
-      console.log('=== PURCHASE RESPONSE ===');
-      console.log('Response Status:', response.status);
-      console.log('Response OK:', response.ok);
-      console.log('Response Headers:', Object.fromEntries(response.headers.entries()));
-      
       const data = await response.json()
-      console.log('=== FULL RESPONSE DATA ===');
-      console.log('Complete Response:', JSON.stringify(data, null, 2));
-      console.log('Response Keys:', Object.keys(data));
-      console.log('Order Data:', data.order);
-      console.log('Accounts:', data.accounts);
-      console.log('Order ID:', data.orderId);
-      console.log('Message:', data.message);
       
       if (response.ok) {
         // Create complete order data with credentials
@@ -127,7 +98,6 @@ function LogDetails() {
       }
     } catch (error) {
       alert('Purchase failed. Please try again.')
-      console.error('Purchase error:', error)
     } finally {
       setPurchasing(false)
     }
@@ -149,12 +119,7 @@ function LogDetails() {
   const totalCost = log ? log.price * quantity : 0
   const canAfford = walletBalance >= totalCost
   const hasStock = (log?.availableQuantity || log?.accounts?.length || log?.availableAccounts || log?.stock || 0) > 0
-  
-  console.log('=== PURCHASE VALIDATION ===');
-  console.log('Wallet Balance:', walletBalance);
-  console.log('Total Cost:', totalCost);
-  console.log('Can Afford:', canAfford);
-  console.log('Has Stock:', hasStock);
+
 
   if (loading) {
     return (

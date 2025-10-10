@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaTiktok, FaWallet, FaSearch, FaSpinner } from 'react-icons/fa'
 import apiService from '../../services/apiService'
+import API_URL from '../../Config'
 
 function Product() {
   const navigate = useNavigate()
@@ -21,11 +22,11 @@ function Product() {
   const fetchProducts = async () => {
     try {
       setLoading(true)
-      const response = await fetch('https://sociallogs.onrender.com/api/logs')
+      const response = await fetch(`${API_URL}/api/logs`)
       const data = await response.json()
       setProducts(data.logs || [])
     } catch (error) {
-      console.error('Error fetching products:', error)
+      // console.error('Error fetching products:', error)
       setError('Failed to load products')
     } finally {
       setLoading(false)
@@ -34,13 +35,13 @@ function Product() {
 
   const fetchWalletBalance = async () => {
     try {
-      const response = await fetch('https://sociallogs.onrender.com/api/wallet/balance', {
+      const response = await fetch(`${API_URL}/api/wallet/balance`, {
         credentials: 'include'
       })
       const data = await response.json()
       setWalletBalance(data.balance || 0)
     } catch (error) {
-      console.error('Error fetching wallet balance:', error)
+      // console.error('Error fetching wallet balance:', error)
     }
   }
 
