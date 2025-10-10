@@ -6,19 +6,22 @@ function Index1() {
   
   const banners = [
     {
-      image: '/WhatsappBanner.jpg',
+      webp: '/webp/WhatsappBanner.webp',
+      fallback: '/WhatsappBanner.jpg',
       alt: 'WhatsApp Support',
       link: 'https://chat.whatsapp.com/KQuPSWyfMSJ2Bdza7ucSTE?mode=wwc',
       external: true
     },
     {
-      image: '/TelegramBanner.jpg',
+      webp: '/webp/TelegramBanner.webp',
+      fallback: '/TelegramBanner.jpg',
       alt: 'Telegram Support', 
       link: 'https://t.me/+KHKwoQa3ieg5MjU8',
       external: true
     },
     {
-      image: '/Customer SupportBanner.jpg',
+      webp: '/webp/Customer SupportBanner.webp',
+      fallback: '/Customer SupportBanner.jpg',
       alt: 'Customer Support',
       link: 'https://t.me/https://t.me/username',
       external: false
@@ -49,11 +52,14 @@ function Index1() {
               rel={banner.external ? "noopener noreferrer" : ""}
               className="absolute inset-0 z-20"
             >
-              <img
-                src={banner.image}
-                alt={banner.alt}
-                className="w-full h-full object-cover"
-              />
+              <picture>
+                <source srcSet={banner.webp} type="image/webp" />
+                <img
+                  src={banner.fallback}
+                  alt={banner.alt}
+                  className="w-full h-full object-cover"
+                />
+              </picture>
             </a>
             {/* Dark overlay for text readability */}
             <div className="absolute inset-0 bg-black bg-opacity-40 pointer-events-none z-10"></div>

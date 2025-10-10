@@ -47,22 +47,22 @@ function Product() {
 
   const getCategoryImage = (category) => {
     const imageMap = {
-      'facebook': '/Facebook dating.jpg',
-      'tiktok': '/TikTok.jpg',
-      'twitter': '/X.jpg',
-      'x': '/X.jpg',
-      'snapchat': '/Snapchart.jpg',
-      'gmail': '/Gmail.jpg',
-      'expressvpn': '/Express VPN.jpg',
-      'nordvpn': '/Nord vpn.jpg',
-      'hmavpn': '/Hma Vpn.jpg',
-      'piavpn': '/Pia vpn.jpg',
-      'pvanishvpn': '/p vanish vpn.jpg',
-      'surfshark': '/Surfshark.jpg',
-      'proxy': '/ia sock 5 proxy.jpg',
-      'vpn': '/Nord vpn.jpg',
-      'texting app': '/Texting app.jpg',
-      'textingapp': '/Texting app.jpg'
+      'facebook': { webp: '/webp/Facebook dating.webp', fallback: '/Facebook dating.jpg' },
+      'tiktok': { webp: '/webp/TikTok.webp', fallback: '/TikTok.jpg' },
+      'twitter': { webp: '/webp/X.webp', fallback: '/X.jpg' },
+      'x': { webp: '/webp/X.webp', fallback: '/X.jpg' },
+      'snapchat': { webp: '/webp/Snapchart.webp', fallback: '/Snapchart.jpg' },
+      'gmail': { webp: '/webp/Gmail.webp', fallback: '/Gmail.jpg' },
+      'expressvpn': { webp: '/webp/Express VPN.webp', fallback: '/Express VPN.jpg' },
+      'nordvpn': { webp: '/webp/Nord vpn.webp', fallback: '/Nord vpn.jpg' },
+      'hmavpn': { webp: '/webp/Hma Vpn.webp', fallback: '/Hma Vpn.jpg' },
+      'piavpn': { webp: '/webp/Pia vpn.webp', fallback: '/Pia vpn.jpg' },
+      'pvanishvpn': { webp: '/webp/p vanish vpn.webp', fallback: '/p vanish vpn.jpg' },
+      'surfshark': { webp: '/webp/Surfshark.webp', fallback: '/Surfshark.jpg' },
+      'proxy': { webp: '/webp/ia sock 5 proxy.webp', fallback: '/ia sock 5 proxy.jpg' },
+      'vpn': { webp: '/webp/Nord vpn.webp', fallback: '/Nord vpn.jpg' },
+      'texting app': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' },
+      'textingapp': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' }
     }
     return imageMap[category?.toLowerCase()] || null
   }
@@ -86,9 +86,14 @@ function Product() {
   }
 
   const getCategoryIcon = (category) => {
-    const imageSrc = getCategoryImage(category)
-    if (imageSrc) {
-      return <img src={imageSrc} alt={category} className="w-12 h-12 object-cover rounded-lg" />
+    const imageData = getCategoryImage(category)
+    if (imageData) {
+      return (
+        <picture>
+          <source srcSet={imageData.webp} type="image/webp" />
+          <img src={imageData.fallback} alt={category} className="w-12 h-12 object-cover rounded-lg" />
+        </picture>
+      )
     }
     
     switch (category?.toLowerCase()) {
@@ -258,11 +263,14 @@ function Product() {
                     >
                       <div className="flex items-center gap-3 mb-3">
                         {getCategoryImage(category) && (
-                          <img 
-                            src={getCategoryImage(category)} 
-                            alt={category} 
-                            className="w-10 h-10 object-cover rounded-lg" 
-                          />
+                          <picture>
+                            <source srcSet={getCategoryImage(category).webp} type="image/webp" />
+                            <img 
+                              src={getCategoryImage(category).fallback} 
+                              alt={category} 
+                              className="w-10 h-10 object-cover rounded-lg" 
+                            />
+                          </picture>
                         )}
                         <div className="flex-1">
                           <span className="text-lg font-semibold block">{product.logName || product.title}</span>
