@@ -1,12 +1,58 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import apiService from '../../services/apiService'
 
 function PaymentFailed() {
   const location = useLocation()
   const navigate = useNavigate()
   const searchParams = new URLSearchParams(location.search)
+  const [checking, setChecking] = useState(true)
   
   const tx_ref = searchParams.get('tx_ref')
+  const transaction_id = searchParams.get('transaction_id')
+  const error = searchParams.get('error')
+
+  useEffect(() => {
+    // Double-check payment status in case it was actually successful
+    checkPaymentStatus()
+  }, [])
+
+  const checkPaymentStatus = async () => {
+    if (transaction_id && tx_ref) {
+      try {
+        const result = await apiService.verifyPayment(transaction_id, tx_ref)
+        // If verification succeeds, redirect to success page
+        navigate(`/payment-success?tx_ref=${tx_ref}&transaction_id=${transaction_id}`)
+        return
+      } catch (error) {
+        // Payment actually failed, stay on this page
+      }
+    }
+    setChecking(false)
+  }
+  
+  const getErrorMessage = () => {
+    switch(error) {
+      case 'verification_failed':
+        return 'Payment verification failed. Please check your balance in the dashboard.'
+      case 'unknown':
+        return 'An unexpected error occurred during payment processing.'
+      default:
+        return 'We couldn\'t process your payment. Please try again.'
+    }
+  }
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center px-4">
+        <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Checking Payment Status</h2>
+          <p className="text-gray-600">Please wait...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center px-4">
@@ -20,7 +66,7 @@ function PaymentFailed() {
 
         {/* Error Message */}
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Payment Failed ❌</h1>
-        <p className="text-gray-600 text-lg mb-6">We couldn't process your payment. Please try again.</p>
+        <p className="text-gray-600 text-lg mb-6">{getErrorMessage()}</p>
 
         {/* Transaction Reference */}
         {tx_ref && (
