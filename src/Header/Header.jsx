@@ -18,7 +18,7 @@ function Header() {
       {/* Desktop Header */}
       <header className="hidden md:block bg-gradient-to-r from-blue-500 to-green-300 shadow-md py-5">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-8">
-          <span className="font-bold text-3xl text-white tracking-widest font-sans drop-shadow-lg">
+          <span className="logofont text-3xl text-white tracking-widest drop-shadow-lg">
             MY SOCIAL LOG
           </span>
           
@@ -39,8 +39,8 @@ function Header() {
 
       {/* Mobile Header */}
       <header className="md:hidden  bg-blue-500  shadow-md py-4">
-        <div className="flex items-center justify-center px-4">
-          <span className="font-bold text-2xl text-white tracking-widest font-sans drop-shadow-lg">
+        <div className="flex items-center justify-start px-4">
+          <span className="logofont text-2xl text-white tracking-widest drop-shadow-lg bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
             My Social Plug
           </span>
           {/* <button 

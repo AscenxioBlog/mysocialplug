@@ -32,25 +32,36 @@ function Index2() {
   }
 
   const getCategoryImage = (category) => {
+    const categoryLower = category?.toLowerCase() || ''
+    
+    // Check if category contains 'dating' and use Facebook dating image
+    if (categoryLower.includes('dating')) {
+      return { webp: '/webp/Facebook dating.webp', fallback: '/Facebook dating.jpg' }
+    }
+    
+    // Check if category contains 'facebook' and use Facebook icon
+    if (categoryLower.includes('facebook')) {
+      return null // Use Facebook icon instead of image
+    }
+    
     const imageMap = {
-      'facebook': { webp: '/webp/Facebook dating.webp', fallback: '/Facebook dating.jpg' },
       'tiktok': { webp: '/webp/TikTok.webp', fallback: '/TikTok.jpg' },
       'twitter': { webp: '/webp/X.webp', fallback: '/X.jpg' },
       'x': { webp: '/webp/X.webp', fallback: '/X.jpg' },
       'snapchat': { webp: '/webp/Snapchart.webp', fallback: '/Snapchart.jpg' },
       'gmail': { webp: '/webp/Gmail.webp', fallback: '/Gmail.jpg' },
-      'expressvpn': { webp: '/webp/Express VPN.webp', fallback: '/Express VPN.jpg' },
-      'nordvpn': { webp: '/webp/Nord vpn.webp', fallback: '/Nord vpn.jpg' },
-      'hmavpn': { webp: '/webp/Hma Vpn.webp', fallback: '/Hma Vpn.jpg' },
-      'piavpn': { webp: '/webp/Pia vpn.webp', fallback: '/Pia vpn.jpg' },
-      'pvanishvpn': { webp: '/webp/p vanish vpn.webp', fallback: '/p vanish vpn.jpg' },
-      'surfshark': { webp: '/webp/Surfshark.webp', fallback: '/Surfshark.jpg' },
-      'proxy': { webp: '/webp/ia sock 5 proxy.webp', fallback: '/ia sock 5 proxy.jpg' },
-      'vpn': { webp: '/webp/Nord vpn.webp', fallback: '/Nord vpn.jpg' },
+      'expressvpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
+      'nordvpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
+      'hmavpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
+      'piavpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
+      'pvanishvpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
+      'surfshark': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
+      'proxy': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
+      'vpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
       'texting app': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' },
       'textingapp': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' }
     }
-    return imageMap[category?.toLowerCase()] || null
+    return imageMap[categoryLower] || null
   }
 
   const getCategoryIcon = (category) => {
@@ -64,8 +75,13 @@ function Index2() {
       )
     }
     
-    switch (category?.toLowerCase()) {
-      case 'social': case 'facebook': return <FaFacebook className="text-blue-600 text-3xl" />
+    const categoryLower = category?.toLowerCase() || ''
+    
+    if (categoryLower.includes('facebook') || categoryLower === 'social') {
+      return <FaFacebook className="text-blue-600 text-3xl" />
+    }
+    
+    switch (categoryLower) {
       case 'instagram': return <FaInstagram className="text-pink-500 text-3xl" />
       case 'twitter': return <FaTwitter className="text-sky-500 text-3xl" />
       case 'tiktok': return <FaTiktok className="text-black text-3xl" />
@@ -75,8 +91,13 @@ function Index2() {
   }
 
   const getCategoryColor = (category) => {
-    switch (category?.toLowerCase()) {
-      case 'social': case 'facebook': return 'bg-blue-50 border-blue-200'
+    const categoryLower = category?.toLowerCase() || ''
+    
+    if (categoryLower.includes('facebook') || categoryLower === 'social') {
+      return 'bg-blue-50 border-blue-200'
+    }
+    
+    switch (categoryLower) {
       case 'instagram': return 'bg-pink-50 border-pink-200'
       case 'twitter': case 'x': return 'bg-sky-50 border-sky-200'
       case 'tiktok': return 'bg-gray-50 border-gray-200'

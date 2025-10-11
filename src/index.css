@@ -13,3 +13,9 @@
   max-width: 1200px;
   margin: auto;
 }
+
+.logofont{
+  font-family: 'Pacifico', cursive;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
