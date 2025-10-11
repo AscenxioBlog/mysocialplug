@@ -26,6 +26,9 @@ import ProductManagement from './UI/Admin/ProductManagement'
 import Analytics from './UI/Admin/Analytics'
 import LogDetails from './UI/LogDetails/LogDetails'
 import PaymentCallback from './UI/PaymentCallback'
+import PaymentSuccess from './UI/Payment/PaymentSuccess'
+import PaymentFailed from './UI/Payment/PaymentFailed'
+import NotFound from './UI/NotFound/NotFound'
 
 function AppContent() {
   const location = useLocation();
@@ -48,6 +51,8 @@ function AppContent() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/payment/callback" element={<PaymentCallback />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failed" element={<PaymentFailed />} />
 
         <Route path="/log-details/:id" element={<LogDetails />} />
         
@@ -67,6 +72,7 @@ function AppContent() {
           <Route path="products" element={<ProductManagement />} />
           <Route path="analytics" element={<Analytics />} />
         </Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
       {!hideHeaderFooter && <Footer />}
     </div>
