@@ -59,19 +59,22 @@ function Product() {
     }
     
     const imageMap = {
+      'vpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
+      'proxy': { webp: '/webp/pia sock 5 proxy.webp', fallback: '/pia sock 5 proxy.jpg' },
+      'texting apps': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' },
       'tiktok': { webp: '/webp/TikTok.webp', fallback: '/TikTok.jpg' },
       'twitter': { webp: '/webp/X.webp', fallback: '/X.jpg' },
       'x': { webp: '/webp/X.webp', fallback: '/X.jpg' },
       'snapchat': { webp: '/webp/Snapchart.webp', fallback: '/Snapchart.jpg' },
       'gmail': { webp: '/webp/Gmail.webp', fallback: '/Gmail.jpg' },
-      'expressvpn': { webp: '/webp/allvpn.jpg', fallback: '/allvpn.jpg' },
-      'nordvpn': { webp: '/webp/allvpn.jpg', fallback: '/allvpn.jpg' },
-      'hmavpn': { webp: '/webp/allvpn.jpg', fallback: '/allvpn.jpg' },
-      'piavpn': { webp: '/webp/allvpn.jpg', fallback: '/allvpn.jpg' },
-      'pvanishvpn': { webp: '/webp/allvpn.jpg', fallback: '/allvpn.jpg' },
-      'surfshark': { webp: '/webp/allvpn.jpg', fallback: '/allvpn.jpg' },
-      'proxy': { webp: '/webp/allvpn.jpg', fallback: '/allvpn.jpg' },
+      'expressvpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
+      'nordvpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
       'vpn': { webp: '/webp/allvpn.jpg', fallback: '/allvpn.jpg' },
+      'hmavpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
+      'piavpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
+      'pvanishvpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
+      'surfshark': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
+      'pia sock 5 proxy': { webp: '/webp/pia sock 5 proxy.webp', fallback: '/pia sock 5 proxy.jpg' },
       'texting app': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' },
       'textingapp': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' }
     }
@@ -81,20 +84,17 @@ function Product() {
   const getCategoryColor = (category) => {
     const categoryLower = category?.toLowerCase() || ''
     
-    if (categoryLower.includes('facebook') || categoryLower === 'social') {
-      return 'bg-blue-50 border-blue-200'
-    }
-    
     switch (categoryLower) {
+      case 'facebook': case 'facebook dating': return 'bg-blue-50 border-blue-200'
+      case 'vpn': return 'bg-green-50 border-green-200'
+      case 'proxy': return 'bg-purple-50 border-purple-200'
+      case 'texting apps': return 'bg-indigo-50 border-indigo-200'
       case 'instagram': return 'bg-pink-50 border-pink-200'
       case 'twitter': case 'x': return 'bg-sky-50 border-sky-200'
       case 'tiktok': return 'bg-gray-50 border-gray-200'
       case 'linkedin': return 'bg-blue-50 border-blue-200'
       case 'snapchat': return 'bg-yellow-50 border-yellow-200'
       case 'gmail': return 'bg-red-50 border-red-200'
-      case 'expressvpn': case 'nordvpn': case 'hmavpn': case 'piavpn': case 'pvanishvpn': case 'surfshark': case 'vpn': return 'bg-green-50 border-green-200'
-      case 'proxy': return 'bg-purple-50 border-purple-200'
-      case 'texting app': case 'textingapp': return 'bg-indigo-50 border-indigo-200'
       case 'streaming': return 'bg-red-50 border-red-200'
       case 'music': return 'bg-green-50 border-green-200'
       default: return 'bg-gray-50 border-gray-200'
@@ -131,12 +131,48 @@ function Product() {
     navigate(`/dashboard/log-details/${product._id || product.id}`)
   }
 
-  const groupedProducts = products.reduce((acc, product) => {
-    const category = product.category || 'other'
-    if (!acc[category]) {
-      acc[category] = []
+  // Normalize categories to group similar ones together
+  const normalizeCategory = (category) => {
+    const categoryLower = category?.toLowerCase() || ''
+    
+    // Group VPN-related categories
+    if (categoryLower.includes('vpn') || categoryLower.includes('expressvpn') || 
+        categoryLower.includes('nordvpn') || categoryLower.includes('hmavpn') || 
+        categoryLower.includes('piavpn') || categoryLower.includes('pvanishvpn') || 
+        categoryLower.includes('surfshark')) {
+      return 'VPN'
     }
-    acc[category].push(product)
+    
+    // Group proxy-related categories separately
+    if (categoryLower.includes('proxy')) {
+      return 'Proxy'
+    }
+    
+    // Group all Facebook-related categories
+    if (categoryLower.includes('facebook') && !categoryLower.includes('dating')) {
+      return 'Facebook'
+    }
+    
+    // Keep Facebook dating separate
+    if (categoryLower.includes('dating')) {
+      return 'Facebook Dating'
+    }
+    
+    // Group texting apps
+    if (categoryLower.includes('texting')) {
+      return 'Texting Apps'
+    }
+    
+    // Return original category for others
+    return category || 'Other'
+  }
+
+  const groupedProducts = products.reduce((acc, product) => {
+    const normalizedCategory = normalizeCategory(product.category)
+    if (!acc[normalizedCategory]) {
+      acc[normalizedCategory] = []
+    }
+    acc[normalizedCategory].push(product)
     return acc
   }, {})
 

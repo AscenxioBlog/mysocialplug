@@ -7,10 +7,11 @@ function Header() {
 
   const navItems = [
     { name: 'Home', href: '/' },
-    { name: 'Products',  href: '/products' },
     { name: 'Login', href: '/login' },
     { name: 'Contact',  href: '/contact' },
     // { name: 'Account',  href: '/account' }
+    // { name: 'Products',  href: '/products' },
+
   ];
 
   return (
