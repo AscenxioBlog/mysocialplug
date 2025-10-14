@@ -16,18 +16,17 @@ function Header() {
   return (
     <>
       {/* Desktop Header */}
-      <header className="hidden md:block bg-gradient-to-r from-blue-500 to-green-300 shadow-md py-5">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-8">
-          <span className="logofont text-3xl text-white tracking-widest drop-shadow-lg">
-            MY SOCIAL LOG
-          </span>
+      <header className="hidden md:block bg-gradient-to-r  shadow-md ">
+        <div className="max-w-6xl h-[80px] mx-auto flex items-center justify-between">
+          <img src="/webp/Mysocialplug.png" className='h-[130px] object-contain transform scale-110' alt="MySocialPlug Logo" />
+
           
           <nav className="flex items-center space-x-8">
             {navItems.map((item, index) => (
               <Link 
                 key={index}
                 to={item.href} 
-                className="text-white hover:text-blue-100 transition-colors duration-200 font-medium flex items-center gap-2"
+                className="text-black hover:text-blue-100 transition-colors duration-200 font-medium flex items-center gap-2"
               >
                 {item.icon}
                 {item.name}
@@ -38,17 +37,11 @@ function Header() {
       </header>
 
       {/* Mobile Header */}
-      <header className="md:hidden  bg-blue-500  shadow-md py-4">
-        <div className="flex items-center justify-start px-4">
-          <span className="logofont text-2xl text-white tracking-widest drop-shadow-lg bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-            My Social Plug
-          </span>
-          {/* <button 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="text-white text-2xl"
-          >
-            {isMenuOpen ? <FaTimes /> : <FaBars />}
-          </button> */}
+      <header className="md:hidden    shadow-md py-4 box-border h-[80px]">
+        <div className="flex h-[50px] px-4 box-border justify-start items-center">
+          <img src="/webp/Mysocialplug1.png" className='h-[130px] ml-[-100px] object-contain transform scale-110' alt="MySocialPlug Logo" />
+          <img src="/webp/Mysocialplug2.png" className='h-[80px] object-contain  ml-[-100px]' alt="MySocialPlug Logo" />
+      
         </div>
         
         {/* Mobile Menu Overlay */}

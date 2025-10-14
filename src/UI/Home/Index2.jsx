@@ -57,6 +57,7 @@ function Index2() {
       'pvanishvpn': { webp: '/webp/allvpn.jpg', fallback: '/allvpn.jpg' },
       'surfshark': { webp: '/webp/allvpn.jpg', fallback: '/allvpn.jpg' },
       'proxy': { webp: '/webp/allvpn.jpg', fallback: '/allvpn.jpg' },
+      'pia sock 5 proxy': { webp: '/webp/pia sock 5 proxy.webp', fallback: '/pia sock 5 proxy.jpg' },
       'vpn': { webp: '/webp/allvpn.jpg', fallback: '/allvpn.jpg' },
       'texting app': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' },
       'textingapp': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' }
@@ -104,24 +105,50 @@ function Index2() {
       case 'linkedin': return 'bg-blue-50 border-blue-200'
       case 'snapchat': return 'bg-yellow-50 border-yellow-200'
       case 'gmail': return 'bg-red-50 border-red-200'
-      case 'expressvpn': case 'nordvpn': case 'hmavpn': case 'piavpn': case 'pvanishvpn': case 'surfshark': case 'vpn': return 'bg-green-50 border-green-200'
+      case 'expressvpn': case 'nordvpn': case 'hmavpn': case 'pvanishvpn': case 'surfshark': case 'vpn': return 'bg-green-50 border-green-200'
       case 'proxy': return 'bg-purple-50 border-purple-200'
       case 'texting app': case 'textingapp': return 'bg-indigo-50 border-indigo-200'
       default: return 'bg-gray-50 border-gray-200'
     }
   }
 
-  // Filter logs based on search term
-  const filteredLogs = logs.filter(log => {
-    const searchLower = searchTerm.toLowerCase()
-    return (
-      log.logName?.toLowerCase().includes(searchLower) ||
-      log.description?.toLowerCase().includes(searchLower) ||
-      log.category?.toLowerCase().includes(searchLower)
-    )
-  })
+  // Enhanced search functionality with ranking
+  const getSearchScore = (log, searchTerm) => {
+    const searchLower = searchTerm.toLowerCase().trim()
+    const logName = log.logName?.toLowerCase() || ''
+    const description = log.description?.toLowerCase() || ''
+    const category = log.category?.toLowerCase() || ''
+    
+    let score = 0
+    
+    // Exact category match gets highest priority
+    if (category === searchLower) score += 100
+    else if (category.includes(searchLower)) score += 80
+    
+    // Exact product name match
+    if (logName === searchLower) score += 90
+    else if (logName.includes(searchLower)) score += 70
+    
+    // Description match
+    if (description.includes(searchLower)) score += 50
+    
+    // Word matching
+    const searchWords = searchLower.split(/\s+/).filter(word => word.length > 0)
+    searchWords.forEach(word => {
+      if (category.includes(word)) score += 60
+      if (logName.includes(word)) score += 40
+      if (description.includes(word)) score += 20
+    })
+    
+    return score
+  }
+  
+  const filteredAndSortedLogs = logs
+    .map(log => ({ ...log, searchScore: getSearchScore(log, searchTerm || '') }))
+    .filter(log => !searchTerm || log.searchScore > 0)
+    .sort((a, b) => b.searchScore - a.searchScore)
 
-  const groupedLogs = filteredLogs.reduce((acc, log) => {
+  const groupedLogs = filteredAndSortedLogs.reduce((acc, log) => {
     const category = log.category || 'other'
     if (!acc[category]) {
       acc[category] = []
@@ -164,7 +191,7 @@ function Index2() {
               <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder="Search products (e.g., vpn, facebook, instagram)..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
@@ -175,7 +202,17 @@ function Index2() {
 
         {Object.keys(groupedLogs).length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No logs available at the moment.</p>
+            <p className="text-gray-500 text-lg">
+              {searchTerm ? `No results found for "${searchTerm}"` : 'No logs available at the moment.'}
+            </p>
+            {searchTerm && (
+              <button 
+                onClick={() => setSearchTerm('')}
+                className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              >
+                Clear Search
+              </button>
+            )}
           </div>
         ) : (
           <div className="space-y-8">

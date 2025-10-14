@@ -36,7 +36,7 @@ function Index1() {
   }, [])
 
   return (
-    <div className="h-[250px] md:h-[500px] lg:h-[600px] relative overflow-hidden">
+    <div className="h-[350px] md:h-[500px] lg:h-[600px] relative overflow-hidden">
       {/* Sliding Banner Background Images */}
       <div className="absolute inset-0">
         {banners.map((banner, index) => (
