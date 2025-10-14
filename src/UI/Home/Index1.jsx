@@ -36,13 +36,13 @@ function Index1() {
   }, [])
 
   return (
-    <div className="h-[350px] md:h-[500px] lg:h-[600px] relative overflow-hidden ">
+    <div className="h-[250px] md:h-[500px] lg:h-[600px] relative overflow-hidden ">
       {/* Sliding Banner Background Images */}
-      <div className="  h-[350px] md:h-[500px] lg:h-[600px]">
+      <div className="  h-[250px] md:h-[500px] lg:h-[600px]">
         {banners.map((banner, index) => (
           <div
             key={index}
-            className={` h-[350px] md:h-[500px] lg:h-[600px]  transition-opacity duration-1000  ${
+            className={` h-[250px] md:h-[500px] lg:h-[600px]  transition-opacity duration-1000  ${
               index === currentSlide ? 'opacity-100' : 'opacity-0'
             }`}
           >
@@ -57,7 +57,7 @@ function Index1() {
                 <img
                   src={banner.fallback}
                   alt={banner.alt}
-                  className=" h-[350px] md:h-[500px] lg:h-[600px]  w-full"
+                  className=" h-[250px] md:h-[500px] lg:h-[600px]  w-full"
                 />
               </picture>
             </a>

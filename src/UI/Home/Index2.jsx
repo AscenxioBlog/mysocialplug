@@ -165,9 +165,9 @@ function Index2() {
       return 'Proxy'
     }
     
-    // Group all Facebook-related categories
+    // Keep Facebook categories separate by their specific names
     if (categoryLower.includes('facebook') && !categoryLower.includes('dating')) {
-      return 'Facebook'
+      return category // Return original category to keep them separate
     }
     
     // Keep Facebook dating separate
@@ -279,7 +279,7 @@ function Index2() {
                         )}
                         <div className="flex-1">
                           <span className="text-lg font-semibold block">{log.logName}</span>
-                          <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">{category}</span>
+                          <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">{log.category}</span>
                         </div>
                       </div>
                       
