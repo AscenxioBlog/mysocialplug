@@ -107,10 +107,10 @@ class ApiService {
     })
   }
 
-  async verifyPayment(transaction_id, tx_ref) {
+  async verifyPayment(reference) {
     return this.request('/wallet/verify-payment', {
       method: 'POST',
-      body: JSON.stringify({ transaction_id, tx_ref })
+      body: JSON.stringify({ reference })
     })
   }
 

@@ -8,8 +8,7 @@ function PaymentFailed() {
   const searchParams = new URLSearchParams(location.search)
   const [checking, setChecking] = useState(true)
   
-  const tx_ref = searchParams.get('tx_ref')
-  const transaction_id = searchParams.get('transaction_id')
+  const reference = searchParams.get('reference')
   const error = searchParams.get('error')
 
   useEffect(() => {
@@ -18,11 +17,11 @@ function PaymentFailed() {
   }, [])
 
   const checkPaymentStatus = async () => {
-    if (transaction_id && tx_ref) {
+    if (reference) {
       try {
-        const result = await apiService.verifyPayment(transaction_id, tx_ref)
+        const result = await apiService.verifyPayment(reference)
         // If verification succeeds, redirect to success page
-        navigate(`/payment-success?tx_ref=${tx_ref}&transaction_id=${transaction_id}`)
+        navigate(`/payment-success?reference=${reference}`)
         return
       } catch (error) {
         // Payment actually failed, stay on this page
@@ -69,10 +68,10 @@ function PaymentFailed() {
         <p className="text-gray-600 text-lg mb-6">{getErrorMessage()}</p>
 
         {/* Transaction Reference */}
-        {tx_ref && (
+        {reference && (
           <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
             <h3 className="font-semibold text-gray-800 mb-3">Transaction Reference:</h3>
-            <span className="font-mono text-sm text-gray-800">{tx_ref}</span>
+            <span className="font-mono text-sm text-gray-800">{reference}</span>
           </div>
         )}
 

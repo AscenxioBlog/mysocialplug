@@ -9,8 +9,7 @@ function PaymentSuccess() {
   const [balance, setBalance] = useState(null)
   const [loading, setLoading] = useState(true)
   
-  const tx_ref = searchParams.get('tx_ref')
-  const transaction_id = searchParams.get('transaction_id')
+  const reference = searchParams.get('reference')
 
   useEffect(() => {
     verifyAndGetBalance()
@@ -18,9 +17,9 @@ function PaymentSuccess() {
 
   const verifyAndGetBalance = async () => {
     try {
-      if (transaction_id && tx_ref) {
+      if ( reference) {
         try {
-          const result = await apiService.verifyPayment(transaction_id, tx_ref)
+          const result = await apiService.verifyPayment(reference)
           setBalance(result.newBalance)
         } catch (verifyError) {
           // If verification fails, get current balance
@@ -61,21 +60,16 @@ function PaymentSuccess() {
         )}
 
         {/* Transaction Details */}
-        {(tx_ref || transaction_id) && (
+        {(reference) && (
           <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
             <h3 className="font-semibold text-gray-800 mb-3">Transaction Details:</h3>
-            {tx_ref && (
+            {reference && (
               <div className="mb-2">
                 <span className="text-sm text-gray-600">Reference: </span>
-                <span className="font-mono text-sm text-gray-800">{tx_ref}</span>
+                <span className="font-mono text-sm text-gray-800">{reference}</span>
               </div>
             )}
-            {transaction_id && (
-              <div>
-                <span className="text-sm text-gray-600">Transaction ID: </span>
-                <span className="font-mono text-sm text-gray-800">{transaction_id}</span>
-              </div>
-            )}
+          
           </div>
         )}
 
