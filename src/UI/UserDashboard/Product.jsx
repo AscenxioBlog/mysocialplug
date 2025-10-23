@@ -148,9 +148,14 @@ function Product() {
       return 'Proxy'
     }
     
-    // Keep Facebook categories separate by their specific names
+    // Handle Facebook categories
     if (categoryLower.includes('facebook') && !categoryLower.includes('dating')) {
-      return category // Return original category to keep them separate
+      // Keep HQ USA Facebook separate
+      if (categoryLower.includes('hq usa') && categoryLower.includes('🇺🇸')) {
+        return category
+      }
+      // Group other Facebook categories under Random country Facebook
+      return 'Random country Facebook'
     }
     
     // Keep Facebook dating separate
