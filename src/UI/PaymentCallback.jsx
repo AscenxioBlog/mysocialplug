@@ -14,30 +14,29 @@ function PaymentCallback() {
 
   const verifyPayment = async () => {
     try {
-      const transaction_id = searchParams.get('transaction_id')
-      const tx_ref = searchParams.get('tx_ref')
+      const reference = searchParams.get('reference')
       
-      if (!transaction_id && !tx_ref) {
-        navigate(`/payment-failed?tx_ref=${tx_ref || 'unknown'}`)
+      if (!reference) {
+        navigate(`/payment-failed?reference=${reference || 'unknown'}`)
         return
       }
 
       try {
-        const result = await apiService.verifyPayment(transaction_id, tx_ref)
-        navigate(`/payment-success?tx_ref=${tx_ref}&transaction_id=${transaction_id}&balance=${result.newBalance}`)
+        const result = await apiService.verifyPayment(reference)
+        navigate(`/payment-success?reference=${reference}&balance=${result.newBalance}`)
       } catch (verifyError) {
         // If verification fails, check if balance was updated
         try {
           const balanceResult = await apiService.getWalletBalance()
-          navigate(`/payment-success?tx_ref=${tx_ref}&transaction_id=${transaction_id}&balance=${balanceResult.balance}`)
+          navigate(`/payment-success?reference=${reference}&balance=${balanceResult.balance}`)
         } catch (balanceError) {
-          navigate(`/payment-failed?tx_ref=${tx_ref}&error=verification_failed`)
+          navigate(`/payment-failed?reference=${reference}&error=verification_failed`)
         }
       }
       
     } catch (error) {
-      const tx_ref = searchParams.get('tx_ref')
-      navigate(`/payment-failed?tx_ref=${tx_ref}&error=unknown`)
+      const reference = searchParams.get('reference')
+      navigate(`/payment-failed?reference=${reference}&error=unknown`)
     }
   }
 
