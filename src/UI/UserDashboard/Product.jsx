@@ -85,7 +85,7 @@ function Product() {
     const categoryLower = category?.toLowerCase() || ''
     
     switch (categoryLower) {
-      case 'facebook': case 'facebook dating': return 'bg-blue-50 border-blue-200'
+      case 'facebook': case 'facebook dating': case 'random country facebook': return 'bg-blue-50 border-blue-200'
       case 'vpn': return 'bg-green-50 border-green-200'
       case 'proxy': return 'bg-purple-50 border-purple-200'
       case 'texting apps': return 'bg-indigo-50 border-indigo-200'
@@ -148,14 +148,23 @@ function Product() {
       return 'Proxy'
     }
     
-    // Handle Facebook categories
+    // Handle HQ USA FACEBOOK as standalone category
+    if (categoryLower.includes('hq usa') && categoryLower.includes('facebook')) {
+      return 'HQ USA FACEBOOK'
+    }
+    
+    // Group all RANDOM COUNTRY FACEBOOK logs together
+    if (categoryLower.includes('random country') && categoryLower.includes('facebook')) {
+      return 'RANDOM COUNTRY FACEBOOK'
+    }
+    
     if (categoryLower.includes('facebook') && !categoryLower.includes('dating')) {
-      // Keep HQ USA Facebook separate
-      if (categoryLower.includes('hq usa') && categoryLower.includes('🇺🇸')) {
-        return category
+      // Keep regular Facebook as its own category
+      if (categoryLower === 'facebook') {
+        return 'Facebook'
       }
-      // Group other Facebook categories under Random country Facebook
-      return 'Random country Facebook'
+      // Group other Facebook variants under Random country Facebook
+      return 'RANDOM COUNTRY FACEBOOK'
     }
     
     // Keep Facebook dating separate
@@ -195,6 +204,16 @@ function Product() {
     return acc
   }, {})
 
+  // Sort categories to put Facebook categories at the top
+  const sortedFilteredProducts = Object.entries(filteredGroupedProducts).sort(([categoryA], [categoryB]) => {
+    const aIsFacebook = categoryA.toLowerCase().includes('facebook')
+    const bIsFacebook = categoryB.toLowerCase().includes('facebook')
+    
+    if (aIsFacebook && !bIsFacebook) return -1
+    if (!aIsFacebook && bIsFacebook) return 1
+    return categoryA.localeCompare(categoryB)
+  })
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -204,7 +223,7 @@ function Product() {
           <p className="text-gray-600">Choose from our premium account logs</p>
         </div>
         <div className="text-sm text-gray-600">
-          {Object.values(filteredGroupedProducts).flat().length} products found
+          {sortedFilteredProducts.flatMap(([, products]) => products).length} products found
         </div>
         
         {/* <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg">
@@ -305,12 +324,12 @@ function Product() {
       {/* Products by Category */}
       {!loading && !error && (
         <div className="space-y-8">
-          {Object.keys(filteredGroupedProducts).length === 0 ? (
+          {sortedFilteredProducts.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
             </div>
           ) : (
-            Object.entries(filteredGroupedProducts).map(([category, categoryProducts]) => (
+            sortedFilteredProducts.map(([category, categoryProducts]) => (
               <div key={category} className="bg-white rounded-xl p-6 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
                   {getCategoryIcon(category)}

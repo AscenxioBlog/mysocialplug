@@ -4,6 +4,7 @@ import { FaWallet, FaShoppingCart, FaChartLine, FaUser, FaPlus, FaHistory, FaCop
 import { useAuth } from '../../contexts/AuthContext'
 import apiService from '../../services/apiService'
 import Product from './Product'
+import SupportModal from '../../components/SupportModal'
 
 function Overview() {
   const [copied, setCopied] = useState(false)
@@ -14,6 +15,7 @@ function Overview() {
   const [showAmountModal, setShowAmountModal] = useState(false)
   const [processing, setProcessing] = useState(false)
   const [amount, setAmount] = useState('')
+  const [showSupportModal, setShowSupportModal] = useState(true)
   const { user } = useAuth()
   
   const userData = {
@@ -254,6 +256,7 @@ function Overview() {
           </div>
         </div>
       )}
+      <SupportModal isOpen={showSupportModal} onClose={() => setShowSupportModal(false)} />
     </div>
   )
 }

@@ -29,10 +29,13 @@ import PaymentCallback from './UI/PaymentCallback'
 import PaymentSuccess from './UI/Payment/PaymentSuccess'
 import PaymentFailed from './UI/Payment/PaymentFailed'
 import NotFound from './UI/NotFound/NotFound'
+import SupportModal from './components/SupportModal'
+import { useSupportModal } from './hooks/useSupportModal'
 
 function AppContent() {
   const location = useLocation();
   const hideHeaderFooter = ['/login', '/register', '/forgot-password'].includes(location.pathname) || location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/reset-password');
+  const { showModal, closeModal } = useSupportModal();
 
   // Scroll to top on route change
   useEffect(() => {
@@ -75,6 +78,7 @@ function AppContent() {
         <Route path="*" element={<NotFound />} />
       </Routes>
       {!hideHeaderFooter && <Footer />}
+      <SupportModal isOpen={showModal} onClose={closeModal} />
     </div>
   )
 }

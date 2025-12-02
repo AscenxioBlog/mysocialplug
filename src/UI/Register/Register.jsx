@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
+import SupportModal from '../../components/SupportModal';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showSupportModal, setShowSupportModal] = useState(false);
   
   const { register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -42,7 +44,10 @@ function Register() {
     try {
       const { confirmPassword, ...registerData } = formData;
       await register(registerData);
-      navigate('/dashboard');
+      setShowSupportModal(true);
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
     } catch (error) {
       setError(error.message || 'Registration failed');
     } finally {
@@ -161,6 +166,7 @@ function Register() {
           </p>
         </div>
       </div>
+      <SupportModal isOpen={showSupportModal} onClose={() => setShowSupportModal(false)} />
     </div>
   );
 }

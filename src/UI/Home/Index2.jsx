@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaTiktok, FaSearch } from "react-icons/fa";
 import API_URL from '../../Config';
+import SupportModal from '../../components/SupportModal';
 
 function Index2() {
   const [logs, setLogs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [showSupportModal, setShowSupportModal] = useState(true)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -98,7 +100,7 @@ function Index2() {
     const categoryLower = category?.toLowerCase() || ''
     
     switch (categoryLower) {
-      case 'facebook': case 'facebook dating': return 'bg-blue-50 border-blue-200'
+      case 'facebook': case 'facebook dating': case 'random country facebook': return 'bg-blue-50 border-blue-200'
       case 'vpn': return 'bg-green-50 border-green-200'
       case 'proxy': return 'bg-purple-50 border-purple-200'
       case 'texting apps': return 'bg-indigo-50 border-indigo-200'
@@ -165,13 +167,21 @@ function Index2() {
       return 'Proxy'
     }
     
-    // Handle Facebook categories
+    // Handle Facebook categories - check HQ USA first
+    if (categoryLower.includes('hq usa') && categoryLower.includes('facebook')) {
+      return category
+    }
+    
     if (categoryLower.includes('facebook') && !categoryLower.includes('dating')) {
-      // Keep HQ USA Facebook separate
-      if (categoryLower.includes('hq usa') && categoryLower.includes('🇺🇸')) {
+      // Keep Random country Facebook as its own category
+      if (categoryLower.includes('random country')) {
         return category
       }
-      // Group other Facebook categories under Random country Facebook
+      // Keep regular Facebook as its own category
+      if (categoryLower === 'facebook') {
+        return category
+      }
+      // Group other Facebook variants under Random country Facebook
       return 'Random country Facebook'
     }
     
@@ -313,6 +323,7 @@ function Index2() {
           </div>
         )}
       </div>
+      <SupportModal isOpen={showSupportModal} onClose={() => setShowSupportModal(false)} />
     </div>
   );
 }
