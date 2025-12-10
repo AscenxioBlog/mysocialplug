@@ -63,6 +63,7 @@ function Index2() {
       'surfshark': { webp: '/webp/allvpn.jpg', fallback: '/allvpn.jpg' },
       'proxy': { webp: '/webp/pia sock 5 proxy.webp', fallback: '/pia sock 5 proxy.jpg' },
       'pia sock 5 proxy': { webp: '/webp/pia sock 5 proxy.webp', fallback: '/pia sock 5 proxy.jpg' },
+      'create another profile facebook': { webp: '/webp/Facebook.webp', fallback: '/Facebook.jpg' },
       'vpn': { webp: '/webp/allvpn.jpg', fallback: '/allvpn.jpg' },
       'texting app': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' },
       'textingapp': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' }
@@ -100,7 +101,7 @@ function Index2() {
     const categoryLower = category?.toLowerCase() || ''
     
     switch (categoryLower) {
-      case 'facebook': case 'facebook dating': case 'random country facebook': return 'bg-blue-50 border-blue-200'
+      case 'facebook': case 'facebook dating': case 'random country facebook': case 'create another profile facebook': return 'bg-blue-50 border-blue-200'
       case 'vpn': return 'bg-green-50 border-green-200'
       case 'proxy': return 'bg-purple-50 border-purple-200'
       case 'texting apps': return 'bg-indigo-50 border-indigo-200'
@@ -165,6 +166,11 @@ function Index2() {
     // Group proxy-related categories separately
     if (categoryLower.includes('proxy')) {
       return 'Proxy'
+    }
+    
+    // Handle CREATE ANOTHER PROFILE FACEBOOK as separate category
+    if (categoryLower.includes('create another profile') && categoryLower.includes('facebook')) {
+      return category
     }
     
     // Handle Facebook categories - check HQ USA first

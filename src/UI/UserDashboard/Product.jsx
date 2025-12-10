@@ -85,7 +85,7 @@ function Product() {
     const categoryLower = category?.toLowerCase() || ''
     
     switch (categoryLower) {
-      case 'facebook': case 'facebook dating': case 'random country facebook': return 'bg-blue-50 border-blue-200'
+      case 'facebook': case 'facebook dating': case 'random country facebook': case 'create another profile facebook': return 'bg-blue-50 border-blue-200'
       case 'vpn': return 'bg-green-50 border-green-200'
       case 'proxy': return 'bg-purple-50 border-purple-200'
       case 'texting apps': return 'bg-indigo-50 border-indigo-200'
@@ -146,6 +146,11 @@ function Product() {
     // Group proxy-related categories separately
     if (categoryLower.includes('proxy')) {
       return 'Proxy'
+    }
+    
+    // Handle CREATE ANOTHER PROFILE FACEBOOK as standalone category
+    if (categoryLower.includes('create another profile') && categoryLower.includes('facebook')) {
+      return 'CREATE ANOTHER PROFILE FACEBOOK'
     }
     
     // Handle HQ USA FACEBOOK as standalone category
