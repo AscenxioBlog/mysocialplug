@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { FaSearch, FaEdit, FaTrash, FaBan, FaCheck, FaEye } from 'react-icons/fa'
 import apiService from '../../services/apiService'
+import API_URL from '../../Config'
 
 function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -8,6 +9,10 @@ function UserManagement() {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showWalletModal, setShowWalletModal] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [walletAmount, setWalletAmount] = useState('')
+  const [walletOperation, setWalletOperation] = useState('add')
 
   useEffect(() => {
     fetchUsers()
@@ -39,12 +44,21 @@ function UserManagement() {
 
   const handleUpdateWallet = async (userId, amount, operation) => {
     try {
-      await apiService.updateUserWallet(userId, amount, operation)
-      fetchUsers() // Refresh the list
+      await apiService.updateUserWallet(userId, parseFloat(amount), operation)
+      fetchUsers()
+      setShowWalletModal(false)
+      setWalletAmount('')
       alert('Wallet updated successfully')
     } catch (error) {
       alert('Failed to update wallet: ' + error.message)
     }
+  }
+
+  const openWalletModal = (user) => {
+    setSelectedUser(user)
+    setWalletAmount('')
+    setWalletOperation('add')
+    setShowWalletModal(true)
   }
 
   const filteredUsers = users.filter(user => {
@@ -168,15 +182,12 @@ function UserManagement() {
                       <button className="text-blue-600 hover:text-blue-900 p-1">
                         <FaEye />
                       </button>
-                      <button className="text-green-600 hover:text-green-900 p-1">
-                        <FaEdit />
-                      </button>
                       <button 
-                        onClick={() => handleUpdateWallet(user._id, 100, 'add')}
+                        onClick={() => openWalletModal(user)}
                         className="text-green-600 hover:text-green-900 p-1" 
-                        title="Add ₦100"
+                        title="Edit Wallet"
                       >
-                        <FaCheck />
+                        <FaEdit />
                       </button>
                       <button 
                         onClick={() => handleDeleteUser(user._id)}
@@ -192,6 +203,60 @@ function UserManagement() {
           </table>
         </div>
       </div>
+
+      {/* Wallet Edit Modal */}
+      {showWalletModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96">
+            <h3 className="text-lg font-semibold mb-4">Edit Wallet Balance</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              User: {selectedUser?.userName}<br/>
+              Current Balance: ₦{selectedUser?.walletBalance.toFixed(2)}
+            </p>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                <input
+                  type="number"
+                  value={walletAmount}
+                  onChange={(e) => setWalletAmount(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter amount"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Operation</label>
+                <select
+                  value={walletOperation}
+                  onChange={(e) => setWalletOperation(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="add">Add to Balance</option>
+                  <option value="subtract">Subtract from Balance</option>
+                </select>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setShowWalletModal(false)}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleUpdateWallet(selectedUser._id, walletAmount, walletOperation)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                disabled={!walletAmount}
+              >
+                Update Wallet
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

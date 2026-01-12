@@ -54,9 +54,13 @@ function Overview() {
   const fetchOrderStats = async () => {
     try {
       const response = await apiService.getOrders()
-      if (response.orders) {
-        setTotalOrders(response.orders.length)
-        const total = response.orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0)
+      if (response.orders || response) {
+        const orders = response.orders || response
+        setTotalOrders(orders.length)
+        const total = orders.reduce((sum, order) => {
+          const orderAmount = order.amount || order.price || order.total || order.totalAmount || 0
+          return sum + parseFloat(orderAmount)
+        }, 0)
         setTotalSpent(total)
       }
     } catch (error) {

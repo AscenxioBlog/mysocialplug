@@ -238,7 +238,7 @@ function Product() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl p-6 shadow-sm">
+      <div className="bg-white rounded-xl p-2 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="relative">
             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -315,7 +315,7 @@ function Product() {
 
       {/* Error State */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-2 text-center">
           <p className="text-red-600 text-lg">{error}</p>
           <button 
             onClick={fetchProducts}
@@ -335,45 +335,45 @@ function Product() {
             </div>
           ) : (
             sortedFilteredProducts.map(([category, categoryProducts]) => (
-              <div key={category} className="bg-white rounded-xl p-6 shadow-sm">
+              <div key={category} className="bg-white rounded-xl p-2 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
                   {getCategoryIcon(category)}
                   <h2 className="text-2xl font-bold text-gray-800 capitalize">{category}</h2>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className=" min-h-[80px] grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
                   {categoryProducts.map((product) => (
                     <div 
                       key={product._id || product.id}
-                      className={`${getCategoryColor(category)} p-4 rounded-lg border hover:shadow-md transition-all cursor-pointer`}
+                      className={`${getCategoryColor(category)} p-2 sm:p-3 md:p-4 rounded-lg border hover:shadow-md transition-all cursor-pointer`}
                     >
-                      <div className="flex items-center gap-3 mb-3">
+                      <div className="flex items-center gap-1 sm:gap-2 md:gap-3 mb-2 sm:mb-3">
                         {getCategoryImage(category) && (
                           <picture>
                             <source srcSet={getCategoryImage(category).webp} type="image/webp" />
                             <img 
                               src={getCategoryImage(category).fallback} 
                               alt={category} 
-                              className="w-10 h-10 object-cover rounded-lg" 
+                              className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 object-cover rounded-lg" 
                             />
                           </picture>
                         )}
                         <div className="flex-1">
-                          <span className="text-lg font-semibold block">{product.logName || product.title}</span>
+                          <span className="text-xs sm:text-sm md:text-lg font-semibold block">{product.logName || product.title}</span>
                           <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">{product.category}</span>
                         </div>
                       </div>
                       
-                      <p className="text-gray-700 mb-2 text-sm">{product.description}</p>
-                      <p className="text-sm text-blue-600 mb-3">
+                      <p className="text-gray-700 mb-1 sm:mb-2 text-xs sm:text-sm truncate">{product.description?.substring(0, 50)}...</p>
+                      <p className="text-xs sm:text-sm text-blue-600 mb-2 sm:mb-3">
                         Available: {product.availableQuantity || product.accounts?.length || product.availableAccounts || product.stock || 0} accounts
                       </p>
                       
                       <div className="flex justify-between items-center">
-                        <span className="text-xl font-bold text-green-600">₦{product.price}</span>
+                        <span className="text-sm sm:text-lg md:text-xl font-bold text-green-600">₦{product.price}</span>
                         <button 
                           onClick={() => handleViewDetails(product)}
-                          className="px-3 py-1 rounded text-sm bg-black text-white hover:bg-gray-800 transition-colors"
+                          className="px-2 sm:px-3 py-1 rounded text-xs sm:text-sm bg-black text-white hover:bg-gray-800 transition-colors"
                         >
                           View Details
                         </button>
