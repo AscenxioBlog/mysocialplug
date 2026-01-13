@@ -22,13 +22,13 @@ function OrderManagement() {
         credentials: 'include'
       })
       const data = await response.json()
-      console.log('Admin orders API response:', data)
-      console.log('Orders array:', data.orders)
-      console.log('Orders length:', data.orders?.length)
+      // console.log('Admin orders API response:', data)
+      // console.log('Orders array:', data.orders)
+      // console.log('Orders length:', data.orders?.length)
       setOrders(data.orders || [])
     } catch (error) {
-      console.error('Error fetching orders:', error)
-      console.error('Error details:', error.message)
+      // console.error('Error fetching orders:', error)
+      // console.error('Error details:', error.message)
     } finally {
       setLoading(false)
     }
@@ -53,7 +53,7 @@ function OrderManagement() {
   }
 
   const updateOrderStatus = (orderId, newStatus) => {
-    console.log(`Updating order ${orderId} to ${newStatus}`)
+    // console.log(`Updating order ${orderId} to ${newStatus}`)
   }
 
   return (
@@ -104,90 +104,141 @@ function OrderManagement() {
         </div>
       </div>
 
-      {/* Orders Table */}
+      {/* Orders - Mobile Cards & Desktop Table */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         {loading ? (
           <div className="p-8 text-center text-gray-500">
             Loading orders...
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredOrders.length === 0 ? (
-                  <tr>
-                    <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
-                      No orders found
-                    </td>
-                  </tr>
-                ) : (
-                  filteredOrders.map((order) => (
-                    <tr key={order._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <span className="font-medium text-gray-900">#{order._id?.slice(-8)}</span>
-                      </td>
-                      <td className="px-6 py-4">
+          <>
+            {/* Mobile Cards */}
+            <div className="block md:hidden">
+              {filteredOrders.length === 0 ? (
+                <div className="p-6 text-center text-gray-500">
+                  No orders found
+                </div>
+              ) : (
+                <div className="space-y-4 p-4">
+                  {filteredOrders.map((order) => (
+                    <div key={order._id} className="bg-gray-50 rounded-lg p-4 space-y-3">
+                      <div className="flex justify-between items-start">
                         <div>
-                          <p className="font-medium text-gray-900">{order.userId?.userName || `User ID: ${order.userId?._id?.slice(-8) || 'N/A'}`}</p>
-                          <p className="text-sm text-gray-500">{order.userId?.email || 'Customer'}</p>
+                          <p className="font-semibold text-gray-900">#{order._id?.slice(-8)}</p>
+                          <p className="text-sm text-gray-600">{order.userId?.userName || `User ${order.userId?._id?.slice(-8) || 'N/A'}`}</p>
                         </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div>
-                          <p className="font-medium text-gray-900">{order.logId?.logName || 'Product'}</p>
-                          <p className="text-sm text-gray-500">{order.logId?.category || 'Social Media Account'}</p>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-gray-900">{order.quantity || 1}</span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="font-medium text-gray-900">₦{order.amount}</span>
-                      </td>
-                      <td className="px-6 py-4">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status || 'completed')}`}>
                           {(order.status || 'completed').charAt(0).toUpperCase() + (order.status || 'completed').slice(1)}
                         </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm text-gray-900">{new Date(order.createdAt).toLocaleDateString()}</span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex space-x-2">
-                          <button className="text-blue-600 hover:text-blue-900 p-1" title="View Details">
-                            <FaEye />
-                          </button>
-                          <button className="text-green-600 hover:text-green-900 p-1" title="Download">
-                            <FaDownload />
-                          </button>
+                      </div>
+                      
+                      <div>
+                        <p className="font-medium text-gray-900">{order.logId?.logName || 'Product'}</p>
+                        <p className="text-sm text-gray-500">{order.logId?.category || 'Social Media Account'}</p>
+                      </div>
+                      
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="text-sm text-gray-600">Amount: <span className="font-semibold text-gray-900">₦{order.amount}</span></p>
+                          <p className="text-sm text-gray-600">Qty: {order.quantity || 1}</p>
                         </div>
+                        <div className="text-right">
+                          <p className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
+                          <div className="flex space-x-2 mt-1">
+                            <button className="text-blue-600 hover:text-blue-900 p-1" title="View Details">
+                              <FaEye />
+                            </button>
+                            <button className="text-green-600 hover:text-green-900 p-1" title="Download">
+                              <FaDownload />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
+                        No orders found
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  ) : (
+                    filteredOrders.map((order) => (
+                      <tr key={order._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <span className="font-medium text-gray-900">#{order._id?.slice(-8)}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div>
+                            <p className="font-medium text-gray-900">{order.userId?.userName || `User ID: ${order.userId?._id?.slice(-8) || 'N/A'}`}</p>
+                            <p className="text-sm text-gray-500">{order.userId?.email || 'Customer'}</p>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div>
+                            <p className="font-medium text-gray-900">{order.logId?.logName || 'Product'}</p>
+                            <p className="text-sm text-gray-500">{order.logId?.category || 'Social Media Account'}</p>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-gray-900">{order.quantity || 1}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="font-medium text-gray-900">₦{order.amount}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status || 'completed')}`}>
+                            {(order.status || 'completed').charAt(0).toUpperCase() + (order.status || 'completed').slice(1)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-sm text-gray-900">{new Date(order.createdAt).toLocaleDateString()}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex space-x-2">
+                            <button className="text-blue-600 hover:text-blue-900 p-1" title="View Details">
+                              <FaEye />
+                            </button>
+                            <button className="text-green-600 hover:text-green-900 p-1" title="Download">
+                              <FaDownload />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 
       {/* Order Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Total Orders</h3>
-          <p className="text-3xl font-bold text-blue-600">{orders.length}</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
+          <h3 className="text-sm md:text-lg font-semibold text-gray-900 mb-2">Total Orders</h3>
+          <p className="text-xl md:text-3xl font-bold text-blue-600">{orders.length}</p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Completed</h3>

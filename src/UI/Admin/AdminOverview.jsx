@@ -14,11 +14,11 @@ function AdminOverview() {
   const fetchDashboardData = async () => {
     try {
       const response = await apiService.getAdminDashboard()
-      console.log('Dashboard Data:', response)
+      // console.log('Dashboard Data:', response)
       setDashboardData(response)
     } catch (error) {
       setError('Failed to load dashboard data')
-      console.error('Error fetching dashboard data:', error)
+      // console.error('Error fetching dashboard data:', error)
     } finally {
       setLoading(false)
     }

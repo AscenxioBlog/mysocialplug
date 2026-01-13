@@ -20,8 +20,17 @@ function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const response = await apiService.getAdminUsers()
-      setUsers(response.users || [])
+      // Fetch all users by setting a large limit
+      const response = await fetch(`${API_URL}/api/admin/users?limit=1000`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      })
+      const data = await response.json()
+      // console.log('Users API Response:', data) // Debug log
+      setUsers(data.users || data || [])
     } catch (error) {
       setError('Failed to load users')
       console.error('Error fetching users:', error)
@@ -62,8 +71,10 @@ function UserManagement() {
   }
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    const userName = user.userName || user.name || ''
+    const userEmail = user.email || ''
+    const matchesSearch = userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         userEmail.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || (user.isAdmin ? 'admin' : 'active') === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -152,10 +163,10 @@ function UserManagement() {
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-semibold">{user.userName.charAt(0)}</span>
+                        <span className="text-white font-semibold">{(user.userName || user.name || 'U').charAt(0)}</span>
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{user.userName}</p>
+                        <p className="font-medium text-gray-900">{user.userName || user.name || 'Unknown User'}</p>
                         <p className="text-sm text-gray-500">{user.email}</p>
                       </div>
                     </div>
