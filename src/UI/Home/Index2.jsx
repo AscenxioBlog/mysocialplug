@@ -280,43 +280,43 @@ function Index2() {
                   <h2 className="text-2xl font-bold text-gray-800 capitalize">{category}</h2>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="min-h-[80px] grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
                   {categoryLogs.map((log) => (
                     <div 
                       key={log._id} 
                       onClick={() => handleViewDetails(log)}
-                      className={`${getCategoryColor(category)} p-4 rounded-lg border hover:shadow-md transition-all cursor-pointer`}
+                      className={`${getCategoryColor(category)} p-2 sm:p-3 md:p-4 rounded-lg border hover:shadow-md transition-all cursor-pointer`}
                     >
-                      <div className="flex items-center gap-3 mb-3">
+                      <div className="flex items-center gap-1 sm:gap-2 md:gap-3 mb-2 sm:mb-3">
                         {getCategoryImage(category) && (
                           <picture>
                             <source srcSet={getCategoryImage(category).webp} type="image/webp" />
                             <img 
                               src={getCategoryImage(category).fallback} 
                               alt={category} 
-                              className="w-10 h-10 object-cover rounded-lg" 
+                              className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 object-cover rounded-lg" 
                             />
                           </picture>
                         )}
                         <div className="flex-1">
-                          <span className="text-lg font-semibold block">{log.logName}</span>
+                          <span className="text-xs sm:text-sm md:text-lg font-semibold block">{log.logName}</span>
                           <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">{log.category}</span>
                         </div>
                       </div>
                       
-                      <p className="text-gray-700 mb-2 text-sm">{log.description}</p>
-                      <p className="text-sm text-blue-600 mb-3">
+                      <p className="text-gray-700 mb-1 sm:mb-2 text-xs sm:text-sm truncate">{log.description?.substring(0, 50)}...</p>
+                      <p className="text-xs sm:text-sm text-blue-600 mb-2 sm:mb-3">
                         Available: {log.availableQuantity || log.accounts?.length || log.availableAccounts || log.stock || 0} accounts
                       </p>
                       
                       <div className="flex justify-between items-center">
-                        <span className="text-xl font-bold text-green-600">₦{log.price}</span>
+                        <span className="text-sm sm:text-lg md:text-xl font-bold text-green-600">₦{log.price}</span>
                         <button 
                           onClick={(e) => {
                             e.stopPropagation()
                             handleViewDetails(log)
                           }}
-                          className="px-3 py-1 rounded text-sm bg-black text-white hover:bg-gray-800"
+                          className="px-2 sm:px-3 py-1 rounded text-xs sm:text-sm bg-black text-white hover:bg-gray-800 transition-colors"
                         >
                           View Details
                         </button>
