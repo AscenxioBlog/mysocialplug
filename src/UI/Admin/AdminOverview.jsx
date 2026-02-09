@@ -92,8 +92,9 @@ function AdminOverview() {
             {recentOrders.length > 0 ? recentOrders.map((order) => (
               <div key={order._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
-                  <p className="font-medium text-gray-900">Order #{order._id.slice(-6)}</p>
+                  <p className="font-medium text-gray-900"> {order.logId?.logName || 'Product'}</p>
                   <p className="text-sm text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</p>
+                   <p className="font-medium text-gray-900">{order.userId?.userName || order.userId?.email || order.logId?.logName || 'Unknown User'}</p>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-gray-900">₦{order.amount}</p>

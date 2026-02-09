@@ -7,25 +7,94 @@ function OrderManagement() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [dateFilter, setDateFilter] = useState('all')
   const [orders, setOrders] = useState([])
+  const [totalOrdersCount, setTotalOrdersCount] = useState(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchOrders()
   }, [])
 
+  const extractOrders = (payload) => {
+    if (Array.isArray(payload)) return payload
+    if (Array.isArray(payload?.orders)) return payload.orders
+    if (Array.isArray(payload?.data)) return payload.data
+    if (Array.isArray(payload?.results)) return payload.results
+    return []
+  }
+
+  const extractTotalPages = (payload) => {
+    return (
+      payload?.totalPages ||
+      payload?.pagination?.totalPages ||
+      payload?.meta?.totalPages ||
+      1
+    )
+  }
+
+  const extractTotalCount = (payload) => {
+    return (
+      payload?.totalOrders ||
+      payload?.totalCount ||
+      payload?.total ||
+      payload?.count ||
+      payload?.pagination?.total ||
+      payload?.meta?.total ||
+      null
+    )
+  }
+
   const fetchOrders = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/admin/orders`, {
+      const baseOrdersUrl = `${API_URL}/api/admin/orders`
+      const headers = {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+
+      const buildPageUrl = (page) =>
+        `${baseOrdersUrl}?page=${page}&limit=1000&perPage=1000&pageSize=1000`
+
+      const response = await fetch(buildPageUrl(1), {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          ...headers
         },
         credentials: 'include'
       })
-      const data = await response.json()
-      // console.log('Admin orders API response:', data)
-      // console.log('Orders array:', data.orders)
-      // console.log('Orders length:', data.orders?.length)
-      setOrders(data.orders || [])
+      const firstPageData = await response.json()
+
+      let allOrders = extractOrders(firstPageData)
+      const totalPages = extractTotalPages(firstPageData)
+      const totalCountFromApi = extractTotalCount(firstPageData)
+
+      if (totalPages > 1) {
+        const pageRequests = []
+        for (let page = 2; page <= totalPages; page += 1) {
+          pageRequests.push(
+            fetch(buildPageUrl(page), {
+              headers: {
+                ...headers
+              },
+              credentials: 'include'
+            })
+          )
+        }
+
+        const pageResponses = await Promise.all(pageRequests)
+        const pagePayloads = await Promise.all(pageResponses.map((res) => res.json()))
+        const pagedOrders = pagePayloads.flatMap((payload) => extractOrders(payload))
+        allOrders = [...allOrders, ...pagedOrders]
+      }
+
+      const seenOrderKeys = new Set()
+      const uniqueOrders = allOrders.filter((order, index) => {
+        if (!order) return false
+        const key = order._id || order.id || `order-${index}`
+        if (seenOrderKeys.has(key)) return false
+        seenOrderKeys.add(key)
+        return true
+      })
+
+      setOrders(uniqueOrders)
+      setTotalOrdersCount(totalCountFromApi || uniqueOrders.length)
     } catch (error) {
       // console.error('Error fetching orders:', error)
       // console.error('Error details:', error.message)
@@ -238,7 +307,7 @@ function OrderManagement() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
           <h3 className="text-sm md:text-lg font-semibold text-gray-900 mb-2">Total Orders</h3>
-          <p className="text-xl md:text-3xl font-bold text-blue-600">{orders.length}</p>
+          <p className="text-xl md:text-3xl font-bold text-blue-600">{totalOrdersCount}</p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Completed</h3>

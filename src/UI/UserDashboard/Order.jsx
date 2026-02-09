@@ -100,7 +100,7 @@ function Order() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg text-gray-900">
-                      {order.product?.platform || order.logName || 'Product'} - {order.product?.type || 'Account'}
+                      {order.logId?.logName || order.product?.platform || order.logName || 'Product'} - {order.product?.type || order.logId?.category || 'Account'}
                     </h3>
                     <p className="text-gray-600">Order #{order._id}</p>
                   </div>
@@ -142,7 +142,7 @@ function Order() {
               
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center mb-3">
-                  <h4 className="font-medium text-gray-900">Account Details:</h4>
+                  {/* <h4 className="font-medium text-gray-900">Account Details:</h4> */}
                   <button
                     onClick={() => viewOrderDetails(order._id)}
                     className="text-blue-600 hover:text-blue-800 text-sm font-medium"
@@ -171,7 +171,7 @@ function Order() {
                       />
                     </div>
                   )) || (
-                    <p className="text-gray-500">No account details available</p>
+                    <p className="text-gray-500"></p>
                   )}
                 </div>
               </div>

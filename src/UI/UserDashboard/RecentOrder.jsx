@@ -35,8 +35,9 @@ function RecentOrder() {
       })
       const data = await response.json()
       setOrders((data.orders || data || []).slice(0, 5))
+      // console.log('Fetched recent orders:', data) 
     } catch (error) {
-      console.error('Error fetching orders:', error)
+      // console.error('Error fetching orders:', error)
     } finally {
       setLoading(false)
     }
@@ -69,7 +70,7 @@ function RecentOrder() {
                   <FaShoppingCart className="text-blue-600" />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{order.logName || order.productName || order.title || 'Product'}</p>
+                  <p className="font-medium text-gray-900">{order.logId?.logName || order.logName || order.productName || order.title || 'Product'}</p>
                   <p className="text-sm text-gray-500">Order #{order._id?.slice(-6) || order.id?.slice(-6) || 'N/A'}</p>
                   <p className="text-xs text-gray-400">
                     <FaCalendarAlt className="inline mr-1" />
