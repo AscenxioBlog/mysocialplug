@@ -33,8 +33,40 @@ function Index2() {
     navigate(`/log-details/${product._id || product.id}`)
   }
 
-  const getCategoryImage = (category) => {
+  const getCategoryImage = (category, productName = '') => {
     const categoryLower = category?.toLowerCase() || ''
+    const productNameLower = productName?.toLowerCase() || ''
+
+    // Force specific image for HMA VPN FOR PHONE / HMA VPN FOR PC products/categories
+    if (
+      categoryLower.includes('hma vpn for phone') ||
+      productNameLower.includes('hma vpn for phone') ||
+      categoryLower.includes('hma vpn for pc') ||
+      productNameLower.includes('hma vpn for pc')
+    ) {
+      return { webp: '/phoneHma.jpeg', fallback: '/phoneHma.jpeg' }
+    }
+
+    // Force specific image for EXPRESS VPN FOR PHONE / EXPRESS VPN FOR PC products/categories
+    if (
+      categoryLower.includes('express vpn for phone') ||
+      productNameLower.includes('express vpn for phone') ||
+      productNameLower.includes('express vpn | one month') ||
+      categoryLower.includes('express vpn for pc') ||
+      productNameLower.includes('express vpn for pc')
+    ) {
+      return { webp: '/newExpressVpn.jpeg', fallback: '/newExpressVpn.jpeg' }
+    }
+
+    // Force specific image for PIA FOR PHONE products/categories
+    if (
+      categoryLower.includes('pia vpn for phone') ||
+      productNameLower.includes('pia vpn for phone') ||
+      categoryLower.includes('pia for phone') ||
+      productNameLower.includes('pia for phone')
+    ) {
+      return { webp: '/phonepia.jpeg', fallback: '/phonepia.jpeg' }
+    }
     
     // Check if category contains 'dating' and use Facebook dating image
     if (categoryLower.includes('dating')) {
@@ -49,7 +81,7 @@ function Index2() {
     const imageMap = {
       'vpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
       'proxy': { webp: '/webp/pia sock 5 proxy.webp', fallback: '/pia sock 5 proxy.jpg' },
-      'texting apps': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' },
+      'texting apps': { webp: '/textplus.jpeg', fallback: '/textplus.jpeg' },
       'tiktok': { webp: '/webp/TikTok.webp', fallback: '/TikTok.jpg' },
       'twitter': { webp: '/webp/X.webp', fallback: '/X.jpg' },
       'x': { webp: '/webp/X.webp', fallback: '/X.jpg' },
@@ -65,8 +97,8 @@ function Index2() {
       'pia sock 5 proxy': { webp: '/webp/pia sock 5 proxy.webp', fallback: '/pia sock 5 proxy.jpg' },
       'create another profile facebook': { webp: '/webp/Facebook.webp', fallback: '/Facebook.jpg' },
       'vpn': { webp: '/webp/allvpn.jpg', fallback: '/allvpn.jpg' },
-      'texting app': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' },
-      'textingapp': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' }
+      'texting app': { webp: '/textplus.jpeg', fallback: '/textplus.jpeg' },
+      'textingapp': { webp: '/textplus.jpeg', fallback: '/textplus.jpeg' }
     }
     return imageMap[categoryLower] || null
   }
@@ -94,24 +126,6 @@ function Index2() {
       case 'tiktok': return <FaTiktok className="text-black text-3xl" />
       case 'linkedin': return <FaLinkedin className="text-blue-700 text-3xl" />
       default: return <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 font-bold text-xs">{category?.charAt(0)?.toUpperCase()}</div>
-    }
-  }
-
-  const getCategoryColor = (category) => {
-    const categoryLower = category?.toLowerCase() || ''
-    
-    switch (categoryLower) {
-      case 'facebook': case 'facebook dating': case 'random country facebook': case 'create another profile facebook': return 'bg-blue-50 border-blue-200'
-      case 'vpn': return 'bg-green-50 border-green-200'
-      case 'proxy': return 'bg-purple-50 border-purple-200'
-      case 'texting apps': return 'bg-indigo-50 border-indigo-200'
-      case 'instagram': return 'bg-pink-50 border-pink-200'
-      case 'twitter': case 'x': return 'bg-sky-50 border-sky-200'
-      case 'tiktok': return 'bg-gray-50 border-gray-200'
-      case 'linkedin': return 'bg-blue-50 border-blue-200'
-      case 'snapchat': return 'bg-yellow-50 border-yellow-200'
-      case 'gmail': return 'bg-red-50 border-red-200'
-      default: return 'bg-gray-50 border-gray-200'
     }
   }
 
@@ -285,14 +299,14 @@ function Index2() {
                     <div 
                       key={log._id} 
                       onClick={() => handleViewDetails(log)}
-                      className={`${getCategoryColor(category)} p-2 sm:p-3 md:p-4 rounded-lg border hover:shadow-md transition-all cursor-pointer`}
+                      className="bg-white p-2 sm:p-3 md:p-4 rounded-lg border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer"
                     >
                       <div className="flex items-center gap-1 sm:gap-2 md:gap-3 mb-2 sm:mb-3">
-                        {getCategoryImage(category) && (
+                        {getCategoryImage(log.category || category, log.logName) && (
                           <picture>
-                            <source srcSet={getCategoryImage(category).webp} type="image/webp" />
+                            <source srcSet={getCategoryImage(log.category || category, log.logName).webp} type="image/webp" />
                             <img 
-                              src={getCategoryImage(category).fallback} 
+                              src={getCategoryImage(log.category || category, log.logName).fallback} 
                               alt={category} 
                               className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 object-cover rounded-lg" 
                             />
