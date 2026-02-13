@@ -45,7 +45,7 @@ function OrderManagement() {
 
   const fetchOrders = async () => {
     try {
-      const baseOrdersUrl = `${API_URL}/api/admin/orders`
+      const baseOrdersUrl = `${API_URL}/api/orders/recent`
       const headers = {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }

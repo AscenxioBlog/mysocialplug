@@ -45,8 +45,41 @@ function Product() {
     }
   }
 
-  const getCategoryImage = (category) => {
+  const getCategoryImage = (category, productName = '') => {
     const categoryLower = category?.toLowerCase() || ''
+    const productNameLower = productName?.toLowerCase() || ''
+
+    // Force specific image for HMA VPN FOR PHONE / HMA VPN FOR PC products/categories
+    if (
+      categoryLower.includes('hma vpn for phone') ||
+      productNameLower.includes('hma vpn for phone') ||
+      categoryLower.includes('hma vpn for pc') ||
+      productNameLower.includes('hma vpn for pc')
+    ) {
+      return { webp: '/phoneHma.jpeg', fallback: '/phoneHma.jpeg' }
+    }
+
+    // Force specific image for EXPRESS VPN FOR PHONE / EXPRESS VPN FOR PC products/categories
+    if (
+      categoryLower.includes('express vpn for phone') ||
+      productNameLower.includes('express vpn for phone') ||
+      productNameLower.includes('express vpn | one month') ||
+      categoryLower.includes('express vpn for pc') ||
+      productNameLower.includes('express vpn for pc')
+    ) {
+      return { webp: '/newExpressVpn.jpeg', fallback: '/newExpressVpn.jpeg' }
+    }
+
+    // Force specific image for PIA FOR PHONE products/categories
+    if (
+      categoryLower.includes('pia vpn for phone') ||
+      productNameLower.includes('pia vpn for phone') ||
+      productNameLower.includes('pia vpn') ||
+      categoryLower.includes('pia for phone') ||
+      productNameLower.includes('pia for phone')
+    ) {
+      return { webp: '/phonepia.jpeg', fallback: '/phonepia.jpeg' }
+    }
     
     // Check if category contains 'dating' and use Facebook dating image
     if (categoryLower.includes('dating')) {
@@ -61,13 +94,13 @@ function Product() {
     const imageMap = {
       'vpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
       'proxy': { webp: '/webp/pia sock 5 proxy.webp', fallback: '/pia sock 5 proxy.jpg' },
-      'texting apps': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' },
+      'texting apps': { webp: '/textplus.jpeg', fallback: '/textplus.jpeg' },
       'tiktok': { webp: '/webp/TikTok.webp', fallback: '/TikTok.jpg' },
       'twitter': { webp: '/webp/X.webp', fallback: '/X.jpg' },
       'x': { webp: '/webp/X.webp', fallback: '/X.jpg' },
       'snapchat': { webp: '/webp/Snapchart.webp', fallback: '/Snapchart.jpg' },
       'gmail': { webp: '/webp/Gmail.webp', fallback: '/Gmail.jpg' },
-      'expressvpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
+      'expressvpn': { webp: '/newExpressVpn.jpeg', fallback: '/newExpressVpn.jpeg' },
       'nordvpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
       'vpn': { webp: '/webp/allvpn.jpg', fallback: '/allvpn.jpg' },
       'hmavpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
@@ -75,8 +108,8 @@ function Product() {
       'pvanishvpn': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
       'surfshark': { webp: '/webp/allvpn.webp', fallback: '/allvpn.jpg' },
       'pia sock 5 proxy': { webp: '/webp/pia sock 5 proxy.webp', fallback: '/pia sock 5 proxy.jpg' },
-      'texting app': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' },
-      'textingapp': { webp: '/webp/Texting app.webp', fallback: '/Texting app.jpg' }
+      'texting app': { webp: '/textplus.jpeg', fallback: '/textplus.jpeg' },
+      'textingapp': { webp: '/textplus.jpeg', fallback: '/textplus.jpeg' }
     }
     return imageMap[categoryLower] || null
   }
@@ -345,14 +378,14 @@ function Product() {
                   {categoryProducts.map((product) => (
                     <div 
                       key={product._id || product.id}
-                      className={`${getCategoryColor(category)} p-2 sm:p-3 md:p-4 rounded-lg border hover:shadow-md transition-all cursor-pointer`}
+                      className="bg-white p-2 sm:p-3 md:p-4 rounded-lg border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer"
                     >
                       <div className="flex items-center gap-1 sm:gap-2 md:gap-3 mb-2 sm:mb-3">
-                        {getCategoryImage(category) && (
+                        {getCategoryImage(product.category || category, product.logName || product.title) && (
                           <picture>
-                            <source srcSet={getCategoryImage(category).webp} type="image/webp" />
+                            <source srcSet={getCategoryImage(product.category || category, product.logName || product.title).webp} type="image/webp" />
                             <img 
-                              src={getCategoryImage(category).fallback} 
+                              src={getCategoryImage(product.category || category, product.logName || product.title).fallback} 
                               alt={category} 
                               className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 object-cover rounded-lg" 
                             />
