@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FaWallet, FaShoppingCart, FaChartLine, FaUser, FaPlus, FaHistory, FaCopy, FaCheck } from 'react-icons/fa'
 import { useAuth } from '../../contexts/AuthContext'
@@ -7,7 +7,6 @@ import Product from './Product'
 import SupportModal from '../../components/SupportModal'
 
 function Overview() {
-  const [copied, setCopied] = useState(false)
   const [walletBalance, setWalletBalance] = useState(0)
   const [totalOrders, setTotalOrders] = useState(0)
   const [totalSpent, setTotalSpent] = useState(0)
@@ -17,68 +16,83 @@ function Overview() {
   const [amount, setAmount] = useState('')
   const [showSupportModal, setShowSupportModal] = useState(true)
   const { user } = useAuth()
-  
+
+  const formatCurrency = (value) => {
+    const amountValue = Number(value || 0)
+
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amountValue)
+  }
+
+  const getOrderTotal = (order) => {
+    const rawAmount = order.totalPrice ?? order.amount ?? order.total ?? order.totalAmount ?? order.price ?? 0
+    const parsedAmount = Number(rawAmount)
+
+    return Number.isFinite(parsedAmount) ? parsedAmount : 0
+  }
+
   const userData = {
     name: user?.userName || 'User',
     email: user?.email || '',
-    walletBalance: walletBalance,
+    walletBalance,
     walletNumber: user?.id || '1A2B3C4D5E6F7G8H9I0J',
-    totalOrders: totalOrders,
-    totalSpent: totalSpent,
+    totalOrders,
+    totalSpent,
     memberSince: user?.createdAt ? new Date(user.createdAt).getFullYear() : '2024'
   }
 
   useEffect(() => {
-    fetchWalletBalance()
-    fetchOrderStats()
-    
-    // Refresh balance when user returns from payment
-    const handleFocus = () => {
+    const fetchWalletBalance = async () => {
+      try {
+        const response = await apiService.getWalletBalance()
+        setWalletBalance(Number(response.balance || 0))
+      } catch {
+        // Error handled silently
+      }
+    }
+
+    const fetchOrderStats = async () => {
+      try {
+        const response = await apiService.getOrders()
+        const orders = Array.isArray(response?.orders)
+          ? response.orders
+          : Array.isArray(response)
+            ? response
+            : []
+
+        setTotalOrders(orders.length)
+        setTotalSpent(orders.reduce((sum, order) => sum + getOrderTotal(order), 0))
+      } catch {
+        // Error handled silently
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    const loadDashboardStats = () => {
       fetchWalletBalance()
       fetchOrderStats()
     }
-    
-    window.addEventListener('focus', handleFocus)
-    return () => window.removeEventListener('focus', handleFocus)
+
+    loadDashboardStats()
+    window.addEventListener('focus', loadDashboardStats)
+
+    return () => window.removeEventListener('focus', loadDashboardStats)
   }, [])
-
-  const fetchWalletBalance = async () => {
-    try {
-      const response = await apiService.getWalletBalance()
-      setWalletBalance(response.balance || 0)
-    } catch (error) {
-      // Error handled silently
-    }
-  }
-
-  const fetchOrderStats = async () => {
-    try {
-      const response = await apiService.getOrders()
-      if (response.orders || response) {
-        const orders = response.orders || response
-        setTotalOrders(orders.length)
-        const total = orders.reduce((sum, order) => {
-          const orderAmount = order.amount || order.price || order.total || order.totalAmount || 0
-          return sum + parseFloat(orderAmount)
-        }, 0)
-        setTotalSpent(total)
-      }
-    } catch (error) {
-      // Error handled silently
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleAddFunds = async (fundAmount) => {
     if (!fundAmount || fundAmount <= 0) {
       alert('Please enter a valid amount')
       return
     }
-    
+
     try {
       const result = await apiService.addFunds(fundAmount)
-      
+
       if (result.payment_link) {
         window.location.href = result.payment_link
       } else if (result.data && result.data.link) {
@@ -86,7 +100,7 @@ function Overview() {
       } else {
         alert('Payment URL not available')
       }
-    } catch (error) {
+    } catch {
       alert('Error initializing payment')
     }
   }
@@ -97,7 +111,7 @@ function Overview() {
   }
 
   const processPayment = async () => {
-    const fundAmount = parseInt(amount)
+    const fundAmount = parseInt(amount, 10)
     if (fundAmount && fundAmount > 0) {
       setProcessing(true)
       await handleAddFunds(fundAmount)
@@ -106,12 +120,6 @@ function Overview() {
     } else {
       alert('Please enter a valid amount')
     }
-  }
-
-  const copyWalletNumber = () => {
-    navigator.clipboard.writeText(userData.walletNumber)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
   }
 
   if (loading) {
@@ -125,14 +133,13 @@ function Overview() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
-      
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-sm text-gray-600">Wallet Balance</p>
-              <p className="text-2xl font-bold text-green-600">₦{walletBalance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+              <p className="text-2xl font-bold text-green-600">{formatCurrency(walletBalance)}</p>
             </div>
             <FaWallet className="text-green-500 text-2xl" />
           </div>
@@ -144,7 +151,7 @@ function Overview() {
             <span>Add Money</span>
           </button>
         </div>
-        
+
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
@@ -154,17 +161,17 @@ function Overview() {
             <FaShoppingCart className="text-blue-500 text-2xl" />
           </div>
         </div>
-        
+
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Spent</p>
-              <p className="text-2xl font-bold text-purple-600">₦{userData.totalSpent.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-purple-600">{formatCurrency(userData.totalSpent)}</p>
             </div>
             <FaChartLine className="text-purple-500 text-2xl" />
           </div>
         </div>
-        
+
         {/* <div className="bg-white rounded-xl p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
@@ -175,8 +182,6 @@ function Overview() {
           </div>
         </div> */}
       </div>
-
-     
 
       {/* Quick Actions */}
       {/* <div className="bg-white rounded-xl p-6 shadow-sm">
@@ -215,14 +220,13 @@ function Overview() {
 
       <Product />
 
-      {/* Amount Modal */}
       {showAmountModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 max-w-sm w-full mx-4">
             <h3 className="text-xl font-bold text-gray-800 mb-4">Enter Amount</h3>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Amount (₦)
+                Amount (NGN)
               </label>
               <input
                 type="number"
@@ -260,6 +264,7 @@ function Overview() {
           </div>
         </div>
       )}
+
       <SupportModal isOpen={showSupportModal} onClose={() => setShowSupportModal(false)} />
     </div>
   )

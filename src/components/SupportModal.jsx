@@ -35,7 +35,7 @@ function SupportModal({ isOpen, onClose }) {
             </div>
           </a>
           
-          <a
+          {/* <a
             href="https://chat.whatsapp.com/KQuPSWyfMSJ2Bdza7ucSTE?mode=wwt"
             target="_blank"
             rel="noopener noreferrer"
@@ -46,7 +46,7 @@ function SupportModal({ isOpen, onClose }) {
               <h3 className="font-semibold text-gray-800">WhatsApp Support</h3>
               <p className="text-sm text-gray-600">Chat with us on WhatsApp</p>
             </div>
-          </a>
+          </a> */}
         </div>
         
         <button
